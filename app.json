@@ -4,9 +4,9 @@
     "slug": "AraBooth",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/arabooth_1024.png",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/ara_splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -21,9 +21,10 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/ara_foreground.png",
         "backgroundColor": "#FFFFFF"
-      }
+      },
+      "package": "com.mocha.Arabooth"
     },
     "web": {
       "favicon": "./assets/favicon.png"
