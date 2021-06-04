@@ -44,7 +44,7 @@ export default App = () => {
     <NavigationContainer>
       <Stack.Navigator screenOptions={{
         //headerTitle:"",
-        //headerShown:false
+        headerShown:false
       }}>
         <Stack.Screen name="Login" component={Login}></Stack.Screen>
         <Stack.Screen name="Action01" component={Action01}></Stack.Screen>

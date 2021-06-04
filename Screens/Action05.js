@@ -3,8 +3,10 @@ import { StyleSheet, Text, View, Image } from 'react-native';
 import { TextButton } from './../Compo/TextButton'
 
 export const Action05 = ({navigation, route}) => { 
-    
-    //이전 페이지에서 받아온 데이터
+
+    //-------------------변수----------------------
+
+    //qr, 입실시점 데이터
     const {qrData, sDate} = route.params;
 
     //현재 시간, 퇴실 시간 체크용
@@ -19,12 +21,17 @@ export const Action05 = ({navigation, route}) => {
         minute:(now.getMinutes() < 10) ? "0" + now.getMinutes() : now.getMinutes(),
         apm:nowApm
     }
-  
-    //다음 페이지 함수
-    const goToAction01 = () =>{
+
+    //-------------------함수----------------------
+
+     //다음 페이지 함수
+     const goToAction01 = () =>{
         navigation.navigate('Action01');
     }
 
+    //-------------------UseEffect----------------------
+    //-------------------커스텀 버튼----------------------  
+    
     //다음 페이지 버튼 속성
     const btnCustom = StyleSheet.create({
         touchable:{
@@ -47,6 +54,7 @@ export const Action05 = ({navigation, route}) => {
         title:"처음으로"
     }
 
+    //-------------------Render----------------------
     return(
         <View style={styles.container}>
             <View style={styles.topContainer}>

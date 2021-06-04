@@ -4,42 +4,20 @@ import {BarCodeScanner} from 'expo-barcode-scanner'
 import { TextButton } from './../Compo/TextButton'
 
 export const QRScan = ({navigation}) => {
-   
+
+    //-------------------변수----------------------
+
     //QR데이터 : 정보, 퍼미션, 실행여부
     const [hasPermission, setHasPermission] = useState(null);
     const [scanned, setScanned] = useState(false);
 
-    //페이지 이동시 최초 한번([] 설정) 실행, 퍼미션 검사, 검사에 따라 화면전환(hasPermission이 useState이기 때문에)
-    useEffect(() => {
-        (async () => {
-          const { status } = await BarCodeScanner.requestPermissionsAsync();
-          setHasPermission(status === 'granted');
-        })();
-    }, []);
+    //-------------------함수----------------------
 
     //스캔시 호출되는 함수, 수정 필요(데이터 선별)
     const handleBarCodeScanned = ({ type, data }) => {        
         //console.log(`Bar code with type ${type} and data ${data} has been scanned!`); 
         goToAction03(data);
     };
-
-    //퍼미션이 아직 없을 경우
-    if (hasPermission === null) {
-        return (
-            <View style={[{flex:1,alignItems:'center',justifyContent:'center'}]}>
-                <Text>Requesting for camera permission</Text>
-            </View>
-        );
-    }
-
-    //퍼미션 거부한 경우
-    if (hasPermission === false) {
-        return (
-            <View style={[{flex:1,alignItems:'center',justifyContent:'center'}]}>
-                <Text>No access to camera</Text>
-            </View>
-        );
-    }
 
     //다음 페이지 함수, 데이터 넘김
     const goToAction03 = (data) =>{
@@ -52,7 +30,39 @@ export const QRScan = ({navigation}) => {
         setScanned(true);
         navigation.goBack();
     }
-    
+
+    //-------------------UseEffect----------------------
+
+    //페이지 이동시 최초 한번([] 설정) 실행, 퍼미션 검사, 검사에 따라 화면전환(hasPermission이 useState이기 때문에)
+    useEffect(() => {
+        (async () => {
+          const { status } = await BarCodeScanner.requestPermissionsAsync();
+          setHasPermission(status === 'granted');
+        })();
+    }, []);
+
+    //-------------------카메라 permission 검사----------------------
+
+    //아직 없을 경우
+    if (hasPermission === null) {
+        return (
+            <View style={[{flex:1,alignItems:'center',justifyContent:'center'}]}>
+                <Text>Requesting for camera permission</Text>
+            </View>
+        );
+    }
+
+    //거부한 경우
+    if (hasPermission === false) {
+        return (
+            <View style={[{flex:1,alignItems:'center',justifyContent:'center'}]}>
+                <Text>No access to camera</Text>
+            </View>
+        );
+    }
+
+    //-------------------커스텀 버튼----------------------
+   
     //취소, 이전페이지 버튼 속성
     const btnCustom = StyleSheet.create({
         touchable:{
@@ -93,6 +103,7 @@ export const QRScan = ({navigation}) => {
         }
     });    
     
+    //-------------------Render----------------------
     return(
         <View style={styles.container}>
             <View style={styles.topContainer}>

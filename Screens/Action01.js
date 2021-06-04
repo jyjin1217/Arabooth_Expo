@@ -4,10 +4,20 @@ import { TextButton } from './../Compo/TextButton'
 
 export const Action01 = ({navigation}) => {
 
+    //-------------------변수----------------------
+
+
+    //-------------------함수----------------------
+
     //다음 페이지
     const goToAction02 = () =>{
         navigation.navigate('Action02');
     }
+
+    //-------------------UseEffect----------------------
+
+
+    //-------------------커스텀 버튼----------------------    
 
     //다음 페이지 버튼 속성
     const btnCustom = StyleSheet.create({
@@ -31,6 +41,7 @@ export const Action01 = ({navigation}) => {
         title:"다음"
     }
 
+    //-------------------Render----------------------
     return(
         <View style={styles.container}>
             <View style={styles.topContainer}>

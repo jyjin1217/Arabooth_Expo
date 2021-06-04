@@ -1,75 +1,120 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, Image, Modal } from 'react-native';
-import { TextButton } from './../Compo/TextButton'
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { TextButton } from './../Compo/TextButton';
+import { storeJsonData, getJsonData } from './../Compo/storageSelf';
 
 export const Action04 = ({navigation, route}) => {
-    //이전 페이지에서 받아온 데이터
+
+    //-------------------변수----------------------
+
+    //스캔으로 받아온 데이터
     const {qrData} = route.params;
     
-    //입실시점, 추가 수정 필요
+    //입실시점 시간 체크
     let started = new Date();
     let startedApm = (started.getHours() > 12) ? "PM" : "AM";
     let startHour = (started.getHours() > 12) ? started.getHours() - 12 : started.getHours();    
-    // const [curDate, setCurDate] = useState({
-    //     year:started.getFullYear(),
-    //     month:(started.getMonth() + 1 < 10) ? "0" + (started.getMonth() + 1) : started.getMonth() + 1,
-    //     day:(started.getDate() < 10) ? "0" + started.getDate() : started.getDate(),
-    //     hour:(startHour < 10) ? "0" + startHour : startHour,
-    //     minute:(started.getMinutes() < 10) ? "0" + started.getMinutes() : started.getMinutes(),
-    //     apm:startedApm
-    // });
-    
-    let curDate = {
+    const [curDate, setCurDate] = useState({
         year:started.getFullYear(),
         month:(started.getMonth() + 1 < 10) ? "0" + (started.getMonth() + 1) : started.getMonth() + 1,
         day:(started.getDate() < 10) ? "0" + started.getDate() : started.getDate(),
         hour:(startHour < 10) ? "0" + startHour : startHour,
         minute:(started.getMinutes() < 10) ? "0" + started.getMinutes() : started.getMinutes(),
         apm:startedApm
-    }
+    });
 
-    /* 핸드폰 내에 저장하기(json) */
-    const storeJsonData = async (key, value) => {
-        try {
-            let jsonValue = JSON.stringify(value);
-            await AsyncStorage.setItem(key, jsonValue);
-        } catch (e) {
-          return false;
-        }
-        return true;
-    }
-    /* 핸드폰 내에 저장 데이터 불러오기(json) */
-    const getJsonData = async (key) => {
-        try {
-            let jsonValue = await AsyncStorage.getItem(key);
-            return jsonValue != null ? JSON.parse(jsonValue) : null;
-        } catch(e) {
-        }
-    }
+    //현재 시간, 퇴실 시간 체크용
+    const [now, setNow] = useState(new Date());
+    const [apm, setApm] = useState("");
+    const [nowHour, setNowHour] = useState(0);
 
-    const settingCurDate = async () =>{        
-        let usingData = await getJsonData('isUsing');
-            
-        if(usingData){                
-            if(usingData.isUse){
-                console.log("-------------1--------------");
-                console.log(curDate);
-                //앱재시작시, 저장된 시작시간으로 변경
-                //qrData(부스이름)은 로그인페이지에서 이동시 전달
+    //Modal 컨트롤
+    const [modalVisible, setModalVisible] = useState(false);
 
-                curDate.year = usingData.startTime.year;
-                curDate.month = usingData.startTime.month;
-                curDate.day = usingData.startTime.day;
-                curDate.hour = usingData.startTime.hour;
-                curDate.minute = usingData.startTime.minute;
-                curDate.apm = usingData.startTime.apm;
+    //-------------------함수----------------------
 
-                console.log("-------------2--------------");
-                console.log(curDate);
+    //다음 페이지 함수, 데이터 넘김(qr, date), 수정 필요
+    const goToAction05 = async () =>{
+        setModalVisible(false);
+
+        //iot close 요청        
+        //let response = await fetch('http://10.0.2.2:5000/userMessage/' + 'Work&All 판교 스카이라운지' + ' on',{method:'POST'});
+        let response = await fetch('http://arabooth-env.eba-28bbr78h.ap-northeast-2.elasticbeanstalk.com/userMessage/' + qrData + ' on',{method:'POST'});
+        //let response = await fetch('http://arabooth-env.eba-28bbr78h.ap-northeast-2.elasticbeanstalk.com/userMessage/' + 'Work&All 판교 스카이라운지' + ' on',{method:'POST'});
+
+        let rJson = await response.json();
+
+        //리퀘스트 실패시
+        if (rJson.hasOwnProperty('msg')){
+            switch(rJson['msg']){
+                case 'Failed': 
+                    Alert.alert(
+                        "Request Fail",
+                        "Please try again after few seconds later",
+                        [
+                            { text: "OK" } // , onPress: () => console.log("Pressed") 가능
+                        ],
+                        { cancelable: false }
+                    );
+                    return;
+                default: break;
             }
-            else {
-                //입실시, 현재 시간을 저장
+        }
+
+        //퇴실시, 저장된 데이터 사용종료 처리
+        let usingDataJson = {
+            isUse:false,
+            startTime:null,
+            boothName:null
+        }
+        await storeJsonData('isUsing', usingDataJson);
+
+        navigation.navigate('Action05', {qrData:qrData,sDate:curDate});
+    }
+
+    //Modal 오픈 함수
+    const openModal = () => { 
+        setNow(new Date());
+        setApm((now.getHours() > 12) ? "PM" : "AM");
+        setNowHour((now.getHours() > 12) ? now.getHours() - 12 : now.getHours());
+        setModalVisible(true);
+    }
+
+    //Modal 종료 함수
+    const exitModal = () => { setModalVisible(false); }
+
+    //-------------------UseEffect----------------------
+
+    //페이지 오픈시 최초 한번([] 설정) 실행, 최초사용/입실/앱재시작 구분
+    useEffect(() => {        
+        (async () => {
+            let usingData = await getJsonData('isUsing');
+            
+            if(usingData){                
+                if(usingData.isUse){                    
+                    //사용 미종료/앱 재시작시, 저장된 시작시간으로 변경
+                    //qrData(부스이름)은 로그인페이지에서 이동시 전달
+                    setCurDate({
+                        year:usingData.startTime.year,
+                        month:usingData.startTime.month,
+                        day:usingData.startTime.day,
+                        hour:usingData.startTime.hour,
+                        minute:usingData.startTime.minute,
+                        apm:usingData.startTime.apm
+                    });
+                }
+                else {
+                    //입실시, 현재 시간을 저장
+                    let usingDataJson = {
+                        isUse:true,
+                        startTime:curDate,
+                        boothName:qrData
+                    }
+                    await storeJsonData('isUsing', usingDataJson);
+                }
+            }
+            else{
+                //최초사용시, key값 미존재시
                 let usingDataJson = {
                     isUse:true,
                     startTime:curDate,
@@ -77,53 +122,12 @@ export const Action04 = ({navigation, route}) => {
                 }
                 await storeJsonData('isUsing', usingDataJson);
             }
-        }
-        else{
-            //최초사용시
-            let usingDataJson = {
-                isUse:true,
-                startTime:curDate,
-                boothName:qrData
-            }
-            await storeJsonData('isUsing', usingDataJson);
-        }
-    }
-    settingCurDate();
-
-
-    //페이지 오픈시 최초 한번([] 설정) 실행, 경우 최초사용/입실/앱재시작 구분
-    // useEffect(() => {        
-    //     (async () => {
-                        
             
-    //     })();
-    // }, []);
+        })();
+    }, []);
 
-  
-    //다음 페이지 함수, 데이터 넘김(qr, date), 수정 필요
-    const goToAction05 = () =>{
-        setModalVisible(false);
-        navigation.navigate('Action05', {qrData:qrData,sDate:curDate});
-    }
-
-    //현재 시간, 퇴실 시간 체크용
-    const [now, setNow] = useState(new Date());
-    const [apm, setApm] = useState("");
-    const [nowHour, setNowHour] = useState(0);
-
-    //모달 컨트롤
-    const [modalVisible, setModalVisible] = useState(false);
-    
-    //모달 오픈 함수
-    const openModal = () => { 
-        setNow(new Date());
-        setApm((now.getHours() > 12) ? "PM" : "AM");
-        setNowHour((now.getHours() > 12) ? now.getHours() - 12 : now.getHours());
-        setModalVisible(true);
-    }
-    //모달 종료 함수
-    const exitModal = () => { setModalVisible(false); }
-
+    //-------------------커스텀 버튼----------------------
+   
     //모달 종료 버튼 속성
     const modalExit = StyleSheet.create({
         touchable:{
@@ -190,6 +194,7 @@ export const Action04 = ({navigation, route}) => {
         title:"퇴실하기"
     }
 
+    //-------------------Render----------------------
     return(
         <View style={styles.container}>
 

@@ -1,19 +1,46 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { TextButton } from './../Compo/TextButton'
+import { TextButton } from './../Compo/TextButton';
+import { getJsonData } from './../Compo/storageSelf';
 
 export const Action03 = ({navigation, route}) => {
 
-    //이전 페이지에서 받아온 데이터
+    //-------------------변수----------------------
+
+    //스캔으로 받아온 데이터
     const {qrData} = route.params;    
 
-    //다음페이지 함수, 데이터 넘김
+    //고객정보
+    const [userCompany, setUserCompany] = useState("워크앤올");    
+    const [userName, setUserName] = useState("아라부스");
+
+    //-------------------함수----------------------
+
+    //다음페이지 함수, 요청 후 iot 오픈 시도
     const goToAction04 = async () =>{
-        //let response = await fetch('http://10.0.2.2:5000/userMessage/' + qrData,{method:'POST'});
-        let response = await fetch('http://arabooth-env.eba-28bbr78h.ap-northeast-2.elasticbeanstalk.com/userMessage/' + qrData,{method:'POST'});
+        //let response = await fetch('http://10.0.2.2:5000/userMessage/' + 'Work&All 판교 스카이라운지' + ' off',{method:'POST'});
+        let response = await fetch('http://arabooth-env.eba-28bbr78h.ap-northeast-2.elasticbeanstalk.com/userMessage/' + qrData + ' off',{method:'POST'});
+        //let response = await fetch('http://arabooth-env.eba-28bbr78h.ap-northeast-2.elasticbeanstalk.com/userMessage/' + 'Work&All 판교 스카이라운지' + ' off',{method:'POST'});
+
         let rJson = await response.json();
-        console.log(rJson);
-        console.log(rJson.msg);
+
+        //리퀘스트 실패시
+        if (rJson.hasOwnProperty('msg')){
+            switch(rJson['msg']){
+                case 'Failed': 
+                    Alert.alert(
+                        "Request Fail",
+                        "Please try again after few seconds later",
+                        [
+                            { text: "OK" } // , onPress: () => console.log("Pressed") 가능
+                        ],
+                        { cancelable: false }
+                    );
+                    return;
+                default: break;
+            }
+        }
+        
         navigation.navigate('Action04', {qrData:qrData});     
     }
 
@@ -21,6 +48,17 @@ export const Action03 = ({navigation, route}) => {
     // const goToAction01 = () =>{
     //     navigation.navigate('Action01');
     // }
+
+    //-------------------UseEffect----------------------
+    useEffect(() => {        
+        (async () => {            
+            let loginJson = await getJsonData('login');
+            setUserCompany(loginJson['company']);
+            setUserName(loginJson['name']);            
+        })();
+    }, []);
+
+    //-------------------커스텀 버튼----------------------
 
     //다음페이지 버튼 속성
     const btnCustom = StyleSheet.create({
@@ -44,6 +82,7 @@ export const Action03 = ({navigation, route}) => {
         title:"입실하기"
     }
 
+    //-------------------Render----------------------
     return(
         <View style={styles.container}>
             <View style={styles.topContainer}>
@@ -51,9 +90,9 @@ export const Action03 = ({navigation, route}) => {
                     <Text style={styles.text01}>Hello</Text>
                 </View>
                 <View style={styles.top02}>
-                    <Text style={styles.text05}>워크앤올</Text>
+                    <Text style={styles.text05}>{userCompany}</Text>
                     <View style={[{flexDirection:'row'}]}>
-                        <Text style={styles.text05}>아라부스</Text>
+                        <Text style={styles.text05}>{userName}</Text>
                         <Text style={styles.text04}> 고객님</Text>
                     </View>
                     <Text style={styles.text04}>인증되었습니다</Text>

@@ -1,69 +1,35 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity, ImageBackground } from 'react-native';
+import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity, ImageBackground, Modal, Alert } from 'react-native';
 import { TextButton } from './../Compo/TextButton'
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { storeJsonData, getJsonData } from './../Compo/storageSelf';
 
 export const Login = ({navigation}) => {
+    
+    //-------------------변수----------------------
 
-    /* 핸드폰 내에 저장하기(json) */
-    const storeJsonData = async (key, value) => {
-        try {
-            let jsonValue = JSON.stringify(value);
-            await AsyncStorage.setItem(key, jsonValue);
-        } catch (e) {
-          return false;
-        }
-        return true;
-    }
-    /* 핸드폰 내에 저장 데이터 불러오기(json) */
-    const getJsonData = async (key) => {
-        try {
-            let jsonValue = await AsyncStorage.getItem(key);
-            return jsonValue != null ? JSON.parse(jsonValue) : null;
-        } catch(e) {
-        }
-    }
-
-    //페이지 오픈시 최초 한번([] 설정) 실행, 
-    useEffect(() => {        
-        (async () => {
-            
-            let autoLoginJson = await getJsonData('autoLogin');
-
-            if(autoLoginJson){
-                
-            }
-            //자동로그인 세팅이라면
-            if(autoLoginJson.isAuto){
-                //저장된 Id,password 확인/세팅
-                let loginJson = await getJsonData('login');
-                if(loginJson){                
-                    setEmailStr(loginJson.email);                
-                    setRealPw(loginJson.pw);
-
-                    let curPw = "";
-                    for(let i = 0; i < loginJson.pw.length; i++)
-                        curPw += "*";                    
-                    setPwStr(curPw);
-                }                
-            }
-
-            //자동로그인 체크 Display 변경
-            if(autoLoginJson.isAuto)
-                setAutoLoginDisplay('flex');
-            else
-                setAutoLoginDisplay('none');
-        })();
-    }, []);
-
-    //계정 정보, 수정필요
+    //로그인 정보 입력 변수
     const [emailStr, setEmailStr] = useState("Arabooth@work&all.com");    
     const [realPw, setRealPw] = useState("1234");
     const [pwStr, setPwStr] = useState("****");
     const [isAutoLogin, setAutoLogin] = useState(true);
     const [autoLoginDisplay, setAutoLoginDisplay] = useState('none');
 
-    //비밀번호 변경, (*) 작업
+    //기존 사용자 정보 변수(로그인 체크시/Modal 이용)
+    const [lastEmail, setLastEmail] = useState("");
+    const [lastName, setLastName] = useState("");
+    const [lastIsUse, setLastIsUse] = useState(false);
+    const [lastBooth, setLastBooth] = useState("");
+
+    //AWS response 받을 유저 데이터
+    let resUserData = null;
+
+    //모달 컨트롤
+    const [modalVisible, setModalVisible] = useState(false);    
+    
+
+    //-------------------함수----------------------
+
+    //입력에 따른 비밀번호 변경, (*) 표시 작업
     const changePwStr = (value) => {
         if(realPw.length < value.length){
             setPwStr(pwStr + '*');
@@ -75,10 +41,9 @@ export const Login = ({navigation}) => {
         }                
     }
 
-    //autoLogin 변경 함수
+    //autoLogin Display 변경
     const changeAutoLogin = () => {
-
-        //useState를 통한 변경은 즉시 반영이 안되기 때문에 지역변수로 다음 체킹
+        //useState를 통한 변경은 즉시 반영이 안되기 때문에 지역변수로 담아 체킹
         let curSelect = !isAutoLogin;
         setAutoLogin(!isAutoLogin);
 
@@ -88,25 +53,165 @@ export const Login = ({navigation}) => {
             setAutoLoginDisplay('none');
     }
 
-
-    //다음 페이지 이동 함수, Local 데이터 저장
+    //로그인 정보 검사
     const checkLogin = async () =>{
+        //로그인 정보 유효성 request     
+        let response = await fetch('https://a3df8nbpa2.execute-api.ap-northeast-2.amazonaws.com/v1/conndb/' + emailStr + '?pw=' + realPw, {method:'GET'});
+        let rJson = await response.json();
 
-        const autoLoginJosn = {
+        //로그인 실패시
+        if (rJson.hasOwnProperty('Error')){
+            switch(rJson['Error']){
+                case 'WrongParam':
+                case 'WrongRequest':
+                case 'NoneData': 
+                    Alert.alert(
+                        "Request Fail",
+                        "Maybe typed wrong..",
+                        [
+                            { text: "OK" } // , onPress: () => console.log("Pressed") 가능
+                        ],
+                        { cancelable: false }
+                    );
+                    return;
+                default: break;
+            }
+        }
+
+        //데이터 임시 저장 후 세이브시 사용
+        resUserData = rJson;
+
+        //로그인 정보 확인, 현재 사용중인 부스가 있다면
+        if(lastIsUse) {
+            if(lastEmail == emailStr) {
+                //기존 유저 로그인이라면 사용 중 페이지로 연결
+                saveAndNextPage('Action04', {qrData:lastBooth}); 
+            }
+            else {
+                //다른 유저로 로그인이라면 modal open
+                openModal();
+            }
+            return;
+        }
+        
+        //사용했던 데이터가 없거나 사용중이 아니라면 저장 후 이동
+        saveAndNextPage('Action01', null);
+    }
+
+    //다음 페이지 이동
+    const saveAndNextPage = async (stackName, nextPageData) => {
+        let autoLoginJosn = {
             isAuto:isAutoLogin
         }
         await storeJsonData('autoLogin', autoLoginJosn);
 
-        const loginJson = {
+        let loginJson = {
             email:emailStr,
-            pw:realPw
+            pw:realPw,
+            company:resUserData['company'],
+            name:resUserData['name'],
+            phone:resUserData['phone']
         }
         await storeJsonData('login', loginJson);
 
-        navigation.navigate('Action01');
+        if(nextPageData == null)
+            navigation.navigate(stackName);
+        else
+            navigation.navigate(stackName, nextPageData);
     }
-    
-    //다음 페이지 버튼 속성
+
+    //Modal 오픈
+    const openModal = () => { setModalVisible(true); }
+    //Modal 종료
+    const exitModal = () => { setModalVisible(false); }
+
+    //Modal 로그인(사용자 변경 + 사용중 부스)
+    const userChangeLogin = async () => {
+        //모달 종료
+        setModalVisible(false);
+
+        //기존 사용자의 부스 이용 종료처리, iot close(= on) 요청
+        //let response = await fetch('http://10.0.2.2:5000/userMessage/' + 'Work&All 판교 스카이라운지' + ' on',{method:'POST'});
+        let response = await fetch('http://arabooth-env.eba-28bbr78h.ap-northeast-2.elasticbeanstalk.com/userMessage/' + qrData + ' on',{method:'POST'});
+        //let response = await fetch('http://arabooth-env.eba-28bbr78h.ap-northeast-2.elasticbeanstalk.com/userMessage/' + 'Work&All 판교 스카이라운지' + ' on',{method:'POST'});
+
+        let rJson = await response.json();        
+
+        //리퀘스트 실패시
+        if (rJson.hasOwnProperty('msg')){
+            switch(rJson['msg']){
+                case 'Failed': 
+                    Alert.alert(
+                        "Request Fail",
+                        "Please try again after few seconds later",
+                        [
+                            { text: "OK" } // , onPress: () => console.log("Pressed") 가능
+                        ],
+                        { cancelable: false }
+                    );
+                    return;
+                default: break;
+            }
+        }
+
+        //사용중 부스 데이터 변경
+        let usingDataJson = {
+            isUse:false,
+            startTime:null,
+            boothName:null
+        }
+        await storeJsonData('isUsing', usingDataJson);
+
+        //로그인
+        saveAndNextPage('Action01', null);
+    }
+
+    //-------------------UseEffect----------------------
+    //페이지 오픈시 최초 한번([] 설정) 실행, 
+    useEffect(() => {        
+        (async () => {            
+            let autoLoginJson = await getJsonData('autoLogin');
+            let loginJson = await getJsonData('login');
+            let usingData = await getJsonData('isUsing');
+
+            if(loginJson && usingData) {
+                //이전 사용중이던 정보 저장, 로그인 체킹 및 Modal에서 이용하게 됌
+                setLastEmail(loginJson.email);
+                setLastName(loginJson.name);
+                setLastIsUse(usingData.isUse);
+                setLastBooth(usingData.boothName);
+            }
+
+            if(autoLoginJson && loginJson){
+                //자동로그인 세팅이라면
+                if(autoLoginJson.isAuto){
+                    //저장된 Id,password 확인/세팅                    
+                    if(loginJson){                
+                        setEmailStr(loginJson.email);                
+                        setRealPw(loginJson.pw);
+
+                        let curPw = "";
+                        for(let i = 0; i < loginJson.pw.length; i++)
+                            curPw += "*";                    
+                        setPwStr(curPw);
+                    }
+                    
+                    //체크 Display 변경
+                    setAutoLoginDisplay('flex');
+                }
+                else {
+                    //체크 Display 변경
+                    setAutoLoginDisplay('none');
+                }                
+            }
+            
+        })();
+    }, []);
+
+    //-------------------커스텀 버튼----------------------
+    //connFunc에 연결되는 함수가 위쪽에 선언되어있어야 작동한다...왜?;;
+
+    //로그인 버튼 속성
     const btnCustom = StyleSheet.create({
         touchable:{
             alignItems:'center',
@@ -127,9 +232,79 @@ export const Login = ({navigation}) => {
         cssStyle: btnCustom,
         title:"로그인"
     }
-   
+
+    //모달 종료 버튼 속성
+    const modalExit = StyleSheet.create({
+        touchable:{
+            alignItems:'center',
+            justifyContent:'center',
+            backgroundColor: "#000000",
+            width:"100%",
+            height: "100%",
+            borderBottomRightRadius:12
+        },
+        text:{
+            color:"#FFFFFF",
+            fontWeight:"bold",
+            fontSize:18,
+        }
+    });    
+    const modalExitInfo = {
+        connFunc:exitModal,
+        cssStyle: modalExit,
+        title:"아니오"
+    }
+
+    //모달 다음 버튼 속성
+    const modalNext = StyleSheet.create({
+        touchable:{
+            alignItems:'center',
+            justifyContent:'center',
+            backgroundColor: "#ff7856",
+            width:"100%",
+            height: "100%",
+            borderBottomLeftRadius:12
+        },
+        text:{
+            color:"#FFFFFF",
+            fontWeight:"bold",
+            fontSize:18,
+        }
+    });    
+    const modalNextInfo = {
+        connFunc:userChangeLogin,
+        cssStyle: modalNext,
+        title:"예"
+    }
+
+    //-------------------Render----------------------
     return(
         <View style={styles.container}>
+
+            <Modal visible={modalVisible} onRequestClose={()=>setModalVisible(false)} transparent={true}>
+                <View style={styles.modalContainer}>
+                    <View style={styles.modalBox}>
+                        <View style={styles.modalBox_1}>
+                            <Image style={styles.modal_img} source={require('./../assets/drawable-xxxhdpi/icon-alert-error_24px.png')}></Image>
+                            <Text></Text>
+                            <Text style={[{color:"#000000",fontSize:20,fontWeight:"bold"}]}>사용중인 부스가 있습니다</Text>                           
+                            <Text></Text>
+                            <Text style={[{color:"#c0c0c0",fontSize:18}]}>사용자 {lastName} 가</Text>
+                            <Text style={[{color:"#c0c0c0",fontSize:18}]}>{lastBooth} 부스를 사용 중입니다</Text>
+                            <Text></Text>
+                            <Text style={[{color:"#c0c0c0",fontSize:18}]}>로그인을 계속 진행하시면</Text>
+                            <Text style={[{color:"#c0c0c0",fontSize:18}]}>해당 부스는 사용종료 처리됩니다</Text>
+                            <Text></Text>
+                            <Text style={[{color:"#c0c0c0",fontSize:18}]}>로그인 하시겠습니까?</Text>
+                        </View>
+                        <View style={styles.modalBox_2}>
+                            <View style={styles.modalBox_2_1}><TextButton info={modalNextInfo} /></View>
+                            <View style={styles.modalBox_2_1}><TextButton info={modalExitInfo} /></View>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
+
             <View style={styles.topContainer}>
                 <View style={styles.imageContainer}>
                     <Image style={styles.logo} source={require('./../assets/drawable-xxxhdpi/compo7-1.png')}></Image>
@@ -192,6 +367,7 @@ const styles = StyleSheet.create({
         borderRadius:6,
         height:49,
         marginBottom:2,
+        paddingLeft:10
     },
     checkBox:{
         resizeMode:"contain",
@@ -203,7 +379,7 @@ const styles = StyleSheet.create({
         width: 82,
         height: 16,
         position:'absolute',
-        bottom:1
+        bottom:6
     },
     //--------------------------------
     text01:{
@@ -216,5 +392,37 @@ const styles = StyleSheet.create({
         fontSize:12,
         
     },    
+    //--------------------------------
+    modalContainer:{
+        flex:1,        
+        alignItems:'center',
+        justifyContent:'center',
+        backgroundColor:"#093a6a80",
+        paddingHorizontal:"9%"
+    },
+    modalBox:{
+        width:"100%",
+        height:"55%",
+        borderRadius:12,
+        backgroundColor:'#ffffff',
+    },
+    modalBox_1:{
+        flex:4.5,  
+        alignItems:'center',
+        justifyContent:'center',
+    },
+    modalBox_2:{
+        flex:1,
+        flexDirection:"row"
+    },
+    modalBox_2_1:{
+        flex:1,
+    },
+    //--------------------------------
+    modal_img:{
+        resizeMode:"contain",
+        width:36,
+        height:36
+    },
     
 });

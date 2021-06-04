@@ -4,10 +4,18 @@ import { TextButton } from './../Compo/TextButton'
 
 export const Action02 = ({navigation}) => {
 
+    //-------------------변수----------------------
+
+    //-------------------함수----------------------
+
     //다음 페이지
     const goToQRScan = () =>{
         navigation.navigate('QRScan');
     }
+
+    //-------------------UseEffect----------------------
+
+    //-------------------커스텀 버튼----------------------
 
     //다음 페이지 버튼 속성
     const btnCustom = StyleSheet.create({
@@ -31,6 +39,7 @@ export const Action02 = ({navigation}) => {
         title:"스캔하기"
     }
 
+    //-------------------Render----------------------
     return(
         <View style={styles.container}>
             <View style={styles.topContainer}>
