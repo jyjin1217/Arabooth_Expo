@@ -338,7 +338,7 @@ const styles = StyleSheet.create({
     },
     //--------------------------------
     topContainer:{
-        flex:5
+        flex:3.5
     },   
     bottomContainer:{
         flex:1,
@@ -365,7 +365,7 @@ const styles = StyleSheet.create({
         backgroundColor:"#FFFFFF66",
         borderRadius:6,
         height:49,
-        marginBottom:2,
+        marginBottom:5,
         paddingLeft:10
     },
     checkBox:{
@@ -378,13 +378,13 @@ const styles = StyleSheet.create({
         width: 82,
         height: 16,
         position:'absolute',
-        bottom:6
+        bottom:18
     },
     //--------------------------------
     text01:{
         color:"#FFFFFFC4",
         fontSize:14,
-        marginBottom:1
+        marginBottom:3
     },
     text02:{
         color:"#FFFFFF",

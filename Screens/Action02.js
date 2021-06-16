@@ -76,7 +76,7 @@ const styles = StyleSheet.create({
     },
     //--------------------------------
     topContainer:{
-        flex:5,
+        flex:3.5,
     },   
     bottomContainer:{
         flex:1,
