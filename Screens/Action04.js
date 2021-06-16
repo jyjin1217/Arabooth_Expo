@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, Image, Modal } from 'react-native';
+import { StyleSheet, Text, View, Image, Modal, Alert } from 'react-native';
 import { TextButton } from './../Compo/TextButton';
 import { storeJsonData, getJsonData } from './../Compo/storageSelf';
 
@@ -38,9 +38,8 @@ export const Action04 = ({navigation, route}) => {
         setModalVisible(false);
 
         //iot close 요청        
-        //let response = await fetch('http://10.0.2.2:5000/userMessage/' + 'Work&All 판교 스카이라운지' + ' on',{method:'POST'});
+        //let response = await fetch('http://10.0.2.2:5000/userMessage/' + qrData + ' on',{method:'POST'});
         let response = await fetch('http://arabooth-env.eba-28bbr78h.ap-northeast-2.elasticbeanstalk.com/userMessage/' + qrData + ' on',{method:'POST'});
-        //let response = await fetch('http://arabooth-env.eba-28bbr78h.ap-northeast-2.elasticbeanstalk.com/userMessage/' + 'Work&All 판교 스카이라운지' + ' on',{method:'POST'});
 
         let rJson = await response.json();
 

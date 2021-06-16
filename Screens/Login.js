@@ -131,9 +131,8 @@ export const Login = ({navigation}) => {
         setModalVisible(false);
 
         //기존 사용자의 부스 이용 종료처리, iot close(= on) 요청
-        //let response = await fetch('http://10.0.2.2:5000/userMessage/' + 'Work&All 판교 스카이라운지' + ' on',{method:'POST'});
+        //let response = await fetch('http://10.0.2.2:5000/userMessage/' + qrData + ' on',{method:'POST'});
         let response = await fetch('http://arabooth-env.eba-28bbr78h.ap-northeast-2.elasticbeanstalk.com/userMessage/' + qrData + ' on',{method:'POST'});
-        //let response = await fetch('http://arabooth-env.eba-28bbr78h.ap-northeast-2.elasticbeanstalk.com/userMessage/' + 'Work&All 판교 스카이라운지' + ' on',{method:'POST'});
 
         let rJson = await response.json();        
 
