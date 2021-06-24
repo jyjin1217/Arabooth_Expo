@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, Alert } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { TextButton } from './../Compo/TextButton';
 import { getJsonData } from './../Compo/storageSelf';
+import * as awsRequest from './../Requests/AwsRequest';
 
 export const Action03 = ({navigation, route}) => {
 
@@ -16,29 +17,11 @@ export const Action03 = ({navigation, route}) => {
 
     //-------------------함수----------------------
 
-    //다음페이지 함수, 요청 후 iot 오픈 시도
+    //다음페이지 함수
     const goToAction04 = async () =>{
-        //let response = await fetch('http://10.0.2.2:5000/userMessage/' + qrData + ' off',{method:'POST'});
-        let response = await fetch('http://arabooth-env.eba-28bbr78h.ap-northeast-2.elasticbeanstalk.com/userMessage/' + qrData + ' off',{method:'POST'});
-
-        let rJson = await response.json();
-
-        //리퀘스트 실패시
-        if (rJson.hasOwnProperty('msg')){
-            switch(rJson['msg']){
-                case 'Failed': 
-                    Alert.alert(
-                        "Request Fail",
-                        "Please try again after few seconds later",
-                        [
-                            { text: "OK" } // , onPress: () => console.log("Pressed") 가능
-                        ],
-                        { cancelable: false }
-                    );
-                    return;
-                default: break;
-            }
-        }
+        //Request : iot open 요청
+        let res1 = await awsRequest.server_IotMessage(qrData,"off");
+        if (res1 == false) return;
         
         navigation.navigate('Action04', {qrData:qrData});     
     }

@@ -28,10 +28,34 @@ export const getJsonData = async (key) => {
 
 
 /*
-@ 키/사용처 메모
+@ 키/내부데이터 메모
 
-autoLogin : Login.js(save/load)
-login : Login.js(save/load)
-isUsing : Action04.js(save/load)
+//최초 저장: Login.js
+autoLogin = {
+    isAuto: bool
+}
+
+//최초 저장: Login.js
+login = {
+    email: string,
+    pw: string,
+    company: string,
+    name: string,
+    phone: string
+}
+
+//최초 저장: Action04.js
+isUsing = {
+    isUse: bool,
+    startTime: json,
+    boothName: string,
+    sDate: string,
+    sNow: number
+}
+
+//최초 저장: Login.js
+attemptUser = {
+    info: json
+}
 
 */

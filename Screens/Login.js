@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity, ImageBackground, Modal, Alert } from 'react-native';
-import { TextButton } from './../Compo/TextButton'
+import { TextButton } from './../Compo/TextButton';
+import * as awsRequest from './../Requests/AwsRequest';
 import { storeJsonData, getJsonData } from './../Compo/storageSelf';
 
 export const Login = ({navigation}) => {
-    
+        
     //-------------------변수----------------------
 
     //로그인 정보 입력 변수
@@ -20,13 +21,9 @@ export const Login = ({navigation}) => {
     const [lastIsUse, setLastIsUse] = useState(false);
     const [lastBooth, setLastBooth] = useState("");
 
-    //AWS response 받을 유저 데이터
-    let resUserData = null;
-
     //모달 컨트롤
     const [modalVisible, setModalVisible] = useState(false);    
     
-
     //-------------------함수----------------------
 
     //입력에 따른 비밀번호 변경, (*) 표시 작업
@@ -56,32 +53,16 @@ export const Login = ({navigation}) => {
     //로그인 정보 검사
     const checkLogin = async () =>{
         //로그인 정보 유효성 request     
-        let response = await fetch('https://a3df8nbpa2.execute-api.ap-northeast-2.amazonaws.com/v1/conndb/' + emailStr + '?pw=' + realPw, {method:'GET'});
-        let rJson = await response.json();
+        let res1 = await awsRequest.lambda_LoginCheck(emailStr, realPw);        
+        if (res1 == false) return;
 
-        //로그인 실패시
-        if (rJson.hasOwnProperty('Error')){
-            switch(rJson['Error']){
-                case 'WrongParam':
-                case 'WrongRequest':
-                case 'NoneData': 
-                    Alert.alert(
-                        "Request Fail",
-                        "Maybe typed wrong..",
-                        [
-                            { text: "OK" } // , onPress: () => console.log("Pressed") 가능
-                        ],
-                        { cancelable: false }
-                    );
-                    return;
-                default: break;
-            }
+        //데이터 임시 저장 후 세이브시 사용, useState때문인지 변수에 담으면 지워지기에 storage 저장
+        let attemptUser = {
+            info:res1
         }
+        await storeJsonData('attemptUser', attemptUser);
 
-        //데이터 임시 저장 후 세이브시 사용
-        resUserData = rJson;
-
-        //로그인 정보 확인, 현재 사용중인 부스가 있다면
+        //사용중이던 부스가 있다면
         if(lastIsUse) {
             if(lastEmail == emailStr) {
                 //기존 유저 로그인이라면 사용 중 페이지로 연결
@@ -94,23 +75,27 @@ export const Login = ({navigation}) => {
             return;
         }
         
-        //사용했던 데이터가 없거나 사용중이 아니라면 저장 후 이동
+        //사용했던 데이터가 없거나, 사용중이 아니라면 저장 후 이동
         saveAndNextPage('Action01', null);
     }
 
-    //다음 페이지 이동
+    //다음 페이지 이동, 사용자 저장
     const saveAndNextPage = async (stackName, nextPageData) => {
         let autoLoginJosn = {
             isAuto:isAutoLogin
         }
         await storeJsonData('autoLogin', autoLoginJosn);
 
+        let attemptUser = await getJsonData('attemptUser');
+        let companyName = attemptUser.info['company'];
+        if (companyName == "") companyName = "무소속";
+
         let loginJson = {
             email:emailStr,
             pw:realPw,
-            company:resUserData['company'],
-            name:resUserData['name'],
-            phone:resUserData['phone']
+            company:companyName,
+            name:attemptUser.info['name'],
+            phone:attemptUser.info['phone']
         }
         await storeJsonData('login', loginJson);
 
@@ -130,34 +115,20 @@ export const Login = ({navigation}) => {
         //모달 종료
         setModalVisible(false);
 
-        //기존 사용자의 부스 이용 종료처리, iot close(= on) 요청
-        //let response = await fetch('http://10.0.2.2:5000/userMessage/' + qrData + ' on',{method:'POST'});
-        let response = await fetch('http://arabooth-env.eba-28bbr78h.ap-northeast-2.elasticbeanstalk.com/userMessage/' + qrData + ' on',{method:'POST'});
+        //기존 사용자의 부스 이용 종료처리
+        //Request : iot close 요청
+        let res1 = await awsRequest.server_IotMessage(lastBooth,"on");
+        if (res1 == false) return;
 
-        let rJson = await response.json();        
-
-        //리퀘스트 실패시
-        if (rJson.hasOwnProperty('msg')){
-            switch(rJson['msg']){
-                case 'Failed': 
-                    Alert.alert(
-                        "Request Fail",
-                        "Please try again after few seconds later",
-                        [
-                            { text: "OK" } // , onPress: () => console.log("Pressed") 가능
-                        ],
-                        { cancelable: false }
-                    );
-                    return;
-                default: break;
-            }
-        }
+        //퇴실시, Log 저장
+        await awsRequest.lambda_SaveLog(true);
 
         //사용중 부스 데이터 변경
         let usingDataJson = {
             isUse:false,
             startTime:null,
-            boothName:null
+            boothName:null,
+            sDate:null
         }
         await storeJsonData('isUsing', usingDataJson);
 
@@ -288,8 +259,15 @@ export const Login = ({navigation}) => {
                             <Text></Text>
                             <Text style={[{color:"#000000",fontSize:20,fontWeight:"bold"}]}>사용중인 부스가 있습니다</Text>                           
                             <Text></Text>
-                            <Text style={[{color:"#c0c0c0",fontSize:18}]}>사용자 {lastName} 가</Text>
-                            <Text style={[{color:"#c0c0c0",fontSize:18}]}>{lastBooth} 부스를 사용 중입니다</Text>
+                            <View style={[{flexDirection:'row'}]}>
+                                <Text style={[{color:"#c0c0c0",fontSize:18}]}>사용자&nbsp;</Text>
+                                <Text style={[{color:"#606060",fontSize:18,fontWeight:"bold"}]}>{lastName}</Text>
+                                <Text style={[{color:"#c0c0c0",fontSize:18}]}>&nbsp;이</Text>
+                            </View>
+                            <View style={[{flexDirection:'row'}]}>
+                                <Text style={[{color:"#606060",fontSize:18,fontWeight:"bold"}]}>{lastBooth}</Text>
+                                <Text style={[{color:"#c0c0c0",fontSize:18}]}>&nbsp;부스를 사용 중입니다</Text>
+                            </View>
                             <Text></Text>
                             <Text style={[{color:"#c0c0c0",fontSize:18}]}>로그인을 계속 진행하시면</Text>
                             <Text style={[{color:"#c0c0c0",fontSize:18}]}>해당 부스는 사용종료 처리됩니다</Text>

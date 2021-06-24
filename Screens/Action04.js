@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, Image, Modal, Alert } from 'react-native';
+import { StyleSheet, Text, View, Image, Modal } from 'react-native';
 import { TextButton } from './../Compo/TextButton';
 import { storeJsonData, getJsonData } from './../Compo/storageSelf';
+import * as awsRequest from './../Requests/AwsRequest';
 
 export const Action04 = ({navigation, route}) => {
 
@@ -35,38 +36,24 @@ export const Action04 = ({navigation, route}) => {
 
     //다음 페이지 함수, 데이터 넘김(qr, date), 수정 필요
     const goToAction05 = async () =>{
+        //Modal 종료
         setModalVisible(false);
 
-        //iot close 요청        
-        //let response = await fetch('http://10.0.2.2:5000/userMessage/' + qrData + ' on',{method:'POST'});
-        let response = await fetch('http://arabooth-env.eba-28bbr78h.ap-northeast-2.elasticbeanstalk.com/userMessage/' + qrData + ' on',{method:'POST'});
-
-        let rJson = await response.json();
-
-        //리퀘스트 실패시
-        if (rJson.hasOwnProperty('msg')){
-            switch(rJson['msg']){
-                case 'Failed': 
-                    Alert.alert(
-                        "Request Fail",
-                        "Please try again after few seconds later",
-                        [
-                            { text: "OK" } // , onPress: () => console.log("Pressed") 가능
-                        ],
-                        { cancelable: false }
-                    );
-                    return;
-                default: break;
-            }
-        }
+        //Request : iot close 요청
+        let res1 = await awsRequest.server_IotMessage(qrData,"on");
+        if (res1 == false) return;
+        
+        //퇴실시, Log 저장
+        await awsRequest.lambda_SaveLog(true);
 
         //퇴실시, 저장된 데이터 사용종료 처리
         let usingDataJson = {
             isUse:false,
             startTime:null,
-            boothName:null
+            boothName:null,
+            sDate:null
         }
-        await storeJsonData('isUsing', usingDataJson);
+        await storeJsonData('isUsing', usingDataJson);        
 
         navigation.navigate('Action05', {qrData:qrData,sDate:curDate});
     }
@@ -88,11 +75,12 @@ export const Action04 = ({navigation, route}) => {
     useEffect(() => {        
         (async () => {
             let usingData = await getJsonData('isUsing');
-            
+
             if(usingData){                
                 if(usingData.isUse){                    
                     //사용 미종료/앱 재시작시, 저장된 시작시간으로 변경
-                    //qrData(부스이름)은 로그인페이지에서 이동시 전달
+                    //로그인페이지로부터 이동된 상황
+                    //qrData(부스이름)은 로그인페이지에서 전달(저장되어 있긴한데.., 현재 페이지 로드에 파라미터가 존재하기에 문제가 생기지 않도록)
                     setCurDate({
                         year:usingData.startTime.year,
                         month:usingData.startTime.month,
@@ -107,19 +95,25 @@ export const Action04 = ({navigation, route}) => {
                     let usingDataJson = {
                         isUse:true,
                         startTime:curDate,
-                        boothName:qrData
+                        boothName:qrData,
+                        sDate:started.getFullYear() + '.' + (started.getMonth() + 1) + '.' + started.getDate() + '.' + started.getHours() + '.' + started.getMinutes() + '.' + started.getSeconds(),
+                        sNow:Date.now()
                     }
                     await storeJsonData('isUsing', usingDataJson);
+                    await awsRequest.lambda_SaveLog(false);
                 }
             }
             else{
-                //최초사용시, key값 미존재시
+                //최초 storage사용시, key값 미존재시
                 let usingDataJson = {
                     isUse:true,
                     startTime:curDate,
-                    boothName:qrData
+                    boothName:qrData,
+                    sDate:started.getFullYear() + '.' + (started.getMonth() + 1) + '.' + started.getDate() + '.' + started.getHours() + '.' + started.getMinutes() + '.' + started.getSeconds(),
+                    sNow:Date.now()
                 }
                 await storeJsonData('isUsing', usingDataJson);
+                await awsRequest.lambda_SaveLog(false);
             }
             
         })();

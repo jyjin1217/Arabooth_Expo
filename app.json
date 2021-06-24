@@ -2,7 +2,7 @@
   "expo": {
     "name": "AraBooth",
     "slug": "AraBooth",
-    "version": "1.0.2",
+    "version": "1.0.4",
     "orientation": "portrait",
     "icon": "./assets/araIcon.png",
     "splash": {
@@ -18,13 +18,12 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.mocha.Arabooth"
+      "bundleIdentifier": "com.mocha.Arabooth",
+      "config":{
+        "usesNonExemptEncryption":false
+      }
     },
     "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/araIcon.png",
-        "backgroundColor": "#00c4cc"
-      },
       "package": "com.mocha.Arabooth"
     },
     "web": {
