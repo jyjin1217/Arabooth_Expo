@@ -69,7 +69,9 @@ export const Action05 = ({navigation, route}) => {
                 </View>
                 <View style={styles.top03}>
                     <View style={styles.top03_1}>
-                        <View style={styles.box01}><Text style={[{color:'#000000',fontSize:18}]}>{qrData}</Text></View>
+                        <View style={styles.box01}>
+                            <Text numberOfLines={1} ellipsizeMode="middle" style={[{color:'#000000',fontSize:18,paddingHorizontal:"5%"}]}>{qrData}</Text>
+                        </View>
                         <View style={styles.box02}>
                             <View style={styles.boxArea04}><Text style={[{color:'#000000',fontSize:18, fontWeight:"bold"}]}>입실시간</Text></View>
                             <View style={styles.boxArea05}>

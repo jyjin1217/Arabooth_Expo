@@ -2,7 +2,7 @@ import React from 'react'
 import { Text, TouchableOpacity } from 'react-native';
 
 /*
-Usage:
+사용법
 
 const checkLogin = () =>{    
 }

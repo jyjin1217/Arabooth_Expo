@@ -73,19 +73,12 @@ export const Action03 = ({navigation, route}) => {
                 </View>
                 <View style={styles.top02}>
                     <Text style={styles.text05}>{userCompany}</Text>
-                    <View style={[{flexDirection:'row'}]}>
-                        <Text style={styles.text05}>{userName}</Text>
-                        <Text style={styles.text04}> 고객님</Text>
-                    </View>
-                    <Text style={styles.text04}>인증되었습니다</Text>
+                    <Text style={styles.text05}>{userName}</Text>                    
+                    <Text style={styles.text04}>고객님 인증되었습니다</Text>
                 </View>
-                <View style={styles.top03}>
-                    
-                    <View style={[{flexDirection:'row'}]}>
-                        <Text style={styles.text03}>{qrData} 부스</Text>
-                        <Text style={styles.text02}>를</Text>
-                    </View>
-                    <Text style={styles.text02}>이용하시겠습니까?</Text>
+                <View style={styles.top03}>  
+                    <Text numberOfLines={1} ellipsizeMode="middle" style={styles.text03}>{qrData}</Text> 
+                    <Text style={styles.text02}>부스를 이용하시겠습니까?</Text>
                 </View>
             </View>
             <View style={styles.bottomContainer}>

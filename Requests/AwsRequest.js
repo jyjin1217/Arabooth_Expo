@@ -88,7 +88,7 @@ export const lambda_SaveLog = async (isEnd) => {
         endStr = endTime.getFullYear() + '.' + (endTime.getMonth() + 1) + '.' + endTime.getDate() + '.' + endTime.getHours() + '.' + endTime.getMinutes() + '.' + endTime.getSeconds();
 
         interval = parseInt((Date.now() - usingJson.sNow) / 1000);
-        if (interval == 0) interval = 1; //AWS에서는(?), 서버에서는(?), 0이면 데이터가 없다고 친다. 뭐.. 맞긴하지..
+        if (interval == 0) interval = 1; //AWS에(?), 서버에(?), 0으로 리퀘스트를 보내면 데이터가 없는 걸로 판단된다. 뭐.. 맞긴하지..
     }
 
     let logData ={

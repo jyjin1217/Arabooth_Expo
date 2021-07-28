@@ -52,6 +52,7 @@ export const Login = ({navigation}) => {
 
     //로그인 정보 검사
     const checkLogin = async () =>{
+
         //로그인 정보 유효성 request     
         let res1 = await awsRequest.lambda_LoginCheck(emailStr, realPw);        
         if (res1 == false) return;
@@ -87,15 +88,21 @@ export const Login = ({navigation}) => {
         await storeJsonData('autoLogin', autoLoginJosn);
 
         let attemptUser = await getJsonData('attemptUser');
-        let companyName = attemptUser.info['company'];
-        if (companyName == "") companyName = "무소속";
+        //데이터가 없을 경우 ""로 저장되어있다.
+        //추후 데이터 표시영역에서 활용하기 위해 정보 변경
+        let userCompany = attemptUser.info['company'];
+        if (userCompany == "") userCompany = "무소속";
+        let userName = attemptUser.info['name'];
+        if (userName == "") userName = "???";
+        let userPhone = attemptUser.info['phone'];
+        if (userPhone == "") userPhone = "000xxxxxxxx";
 
         let loginJson = {
             email:emailStr,
             pw:realPw,
-            company:companyName,
-            name:attemptUser.info['name'],
-            phone:attemptUser.info['phone']
+            company:userCompany,
+            name:userName,
+            phone:userPhone
         }
         await storeJsonData('login', loginJson);
 
@@ -260,19 +267,17 @@ export const Login = ({navigation}) => {
                             <Text style={[{color:"#000000",fontSize:20,fontWeight:"bold"}]}>사용중인 부스가 있습니다</Text>                           
                             <Text></Text>
                             <View style={[{flexDirection:'row'}]}>
-                                <Text style={[{color:"#c0c0c0",fontSize:18}]}>사용자&nbsp;</Text>
-                                <Text style={[{color:"#606060",fontSize:18,fontWeight:"bold"}]}>{lastName}</Text>
-                                <Text style={[{color:"#c0c0c0",fontSize:18}]}>&nbsp;이</Text>
+                                <Text style={[{color:"#606060",fontSize:18}]}>사용자&nbsp;</Text>
+                                <Text style={[{color:"#000000",fontSize:18,fontWeight:"bold"}]}>{lastName}</Text>
+                                <Text style={[{color:"#606060",fontSize:18}]}>&nbsp;이</Text>
                             </View>
-                            <View style={[{flexDirection:'row'}]}>
-                                <Text style={[{color:"#606060",fontSize:18,fontWeight:"bold"}]}>{lastBooth}</Text>
-                                <Text style={[{color:"#c0c0c0",fontSize:18}]}>&nbsp;부스를 사용 중입니다</Text>
-                            </View>
+                            <Text numberOfLines={1} ellipsizeMode="middle" style={[{color:"#000000",fontSize:18,fontWeight:"bold",paddingHorizontal:"5%"}]}>{lastBooth}</Text>
+                            <Text style={[{color:"#606060",fontSize:18}]}>부스를 사용 중입니다</Text>
                             <Text></Text>
-                            <Text style={[{color:"#c0c0c0",fontSize:18}]}>로그인을 계속 진행하시면</Text>
-                            <Text style={[{color:"#c0c0c0",fontSize:18}]}>해당 부스는 사용종료 처리됩니다</Text>
+                            <Text style={[{color:"#606060",fontSize:18}]}>로그인을 계속 진행하시면</Text>
+                            <Text style={[{color:"#606060",fontSize:18}]}>해당 부스는 사용종료 처리됩니다</Text>
                             <Text></Text>
-                            <Text style={[{color:"#c0c0c0",fontSize:18}]}>로그인 하시겠습니까?</Text>
+                            <Text style={[{color:"#606060",fontSize:18}]}>로그인 하시겠습니까?</Text>
                         </View>
                         <View style={styles.modalBox_2}>
                             <View style={styles.modalBox_2_1}><TextButton info={modalNextInfo} /></View>
@@ -379,7 +384,7 @@ const styles = StyleSheet.create({
     },
     modalBox:{
         width:"100%",
-        height:"55%",
+        height:"65%",
         borderRadius:12,
         backgroundColor:'#ffffff',
     },

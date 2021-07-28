@@ -114,9 +114,9 @@ export const QRScan = ({navigation}) => {
             </View>
             <View style={styles.bottomContainer}>
                 <TextButton info={textBtnInfo} />
-                {/* <TouchableOpacity style={avdTemp.touchable} onPress={()=>goToAction03("테스트")}>
+                <TouchableOpacity style={avdTemp.touchable} onPress={()=>goToAction03("테스트")}>
                     <Text style={avdTemp.text}>테스트용:다음페이지</Text>
-                </TouchableOpacity> */}
+                </TouchableOpacity>
             </View>
         </View>
     );

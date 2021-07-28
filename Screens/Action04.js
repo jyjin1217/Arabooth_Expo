@@ -34,7 +34,7 @@ export const Action04 = ({navigation, route}) => {
 
     //-------------------함수----------------------
 
-    //다음 페이지 함수, 데이터 넘김(qr, date), 수정 필요
+    //다음 페이지 함수, 데이터 넘김(qr, date)
     const goToAction05 = async () =>{
         //Modal 종료
         setModalVisible(false);
@@ -228,7 +228,9 @@ export const Action04 = ({navigation, route}) => {
                 </View>
                 <View style={styles.top03}>
                     <View style={styles.top03_1}>
-                        <View style={styles.box01}><Text style={[{color:'#000000',fontSize:18}]}>{qrData}</Text></View>
+                        <View style={styles.box01}>
+                            <Text numberOfLines={1} ellipsizeMode="middle" style={[{color:'#000000',fontSize:18, paddingHorizontal:"5%"}]}>{qrData}</Text>
+                        </View>
                         <View style={styles.box02}>
                             <View style={styles.boxArea04}><Text style={[{color:'#000000',fontSize:18, fontWeight:"bold"}]}>입실시간</Text></View>
                             <View style={styles.boxArea05}>

@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { BackHandler, Alert } from 'react-native'
 import { NavigationContainer } from '@react-navigation/native'
 import { createStackNavigator } from '@react-navigation/stack'
 import * as SplashScreen from 'expo-splash-screen';
@@ -17,7 +18,8 @@ export default App = () => {
   const Stack = createStackNavigator();
 
   useEffect(() => {
-    async function prepare() {
+    //Splash screen 지속시간 설정
+    async function prepare() {      
       try {
         await SplashScreen.preventAutoHideAsync();
         await new Promise(resolve => setTimeout(resolve, 2000));
@@ -29,8 +31,34 @@ export default App = () => {
     }
 
     prepare();
+    
   }, []);
-  
+
+  useEffect(() => {
+    //Back Button customize
+    const backAction = () => {
+      Alert.alert(
+          "Exit App",
+          "앱을 종료하시겠습니까?",
+          [
+            { text: "아니오" , onPress: () => null },
+            { text: "예" , onPress: () => BackHandler.exitApp() } 
+          ],
+          { cancelable: false }
+      );
+      
+      //return true -> 기본 뒤로가기 동작을 막음(현 상태에서는 stack-navigation pop을 막음)
+      return true;
+    }
+
+    BackHandler.addEventListener("hardwareBackPress", backAction)
+
+    //return 함수영역 : componentWillMount 역할
+    return () => BackHandler.addEventListener("hardwareBackPress", backAction);
+  }, [])
+
+
+ 
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={{
