@@ -2,7 +2,7 @@ import { Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getJsonData } from './../Compo/storageSelf';
 
-export const server_IotMessage = async (boothName, operation) => {
+export const server_IotRequest = async (boothName, operation) => {
 
     if (boothName == "테스트") return true;
 

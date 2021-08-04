@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity, ImageBackground, Modal, Alert } from 'react-native';
+import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity, ImageBackground, Modal } from 'react-native';
 import { TextButton } from './../Compo/TextButton';
 import * as awsRequest from './../Requests/AwsRequest';
 import { storeJsonData, getJsonData } from './../Compo/storageSelf';

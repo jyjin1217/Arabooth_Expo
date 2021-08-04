@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, View, Image } from 'react-native';
-import { TextButton } from './../Compo/TextButton'
+import { TextButton } from './../Compo/TextButton';
 
 export const Action01 = ({navigation}) => {
 
@@ -14,8 +14,7 @@ export const Action01 = ({navigation}) => {
         navigation.navigate('Action02');
     }
 
-    //-------------------UseEffect----------------------
-
+    //-------------------UseEffect-----------------------
 
     //-------------------커스텀 버튼----------------------    
 
