@@ -25,8 +25,8 @@ export const Action05 = ({navigation, route}) => {
     //-------------------함수----------------------
 
      //다음 페이지 함수
-     const goToAction01 = () =>{
-        navigation.navigate('Action01');
+     const goToAction02 = () =>{
+        navigation.navigate('Action02');
     }
 
     //-------------------UseEffect----------------------
@@ -49,7 +49,7 @@ export const Action05 = ({navigation, route}) => {
         }
     });    
     const textBtnInfo = {
-        connFunc:goToAction01,
+        connFunc:goToAction02,
         cssStyle: btnCustom,
         title:"처음으로"
     }

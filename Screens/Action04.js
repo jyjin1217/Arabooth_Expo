@@ -40,7 +40,7 @@ export const Action04 = ({navigation, route}) => {
         setModalVisible(false);
 
         //Request : iot close 요청
-        let res1 = await awsRequest.server_IotRequest(qrData,"on");
+        let res1 = await awsRequest.lambda_SetDeviceState(qrData,"on");
         if (res1 == false) return;
         
         //퇴실시, Log 저장

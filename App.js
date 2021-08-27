@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { BackHandler, Alert, View, Text, Button } from 'react-native'
+import { BackHandler, Alert } from 'react-native'
 import { NavigationContainer } from '@react-navigation/native'
 import { createStackNavigator, HeaderBackButton } from '@react-navigation/stack'
 import * as SplashScreen from 'expo-splash-screen';
@@ -37,10 +37,10 @@ export default App = () => {
         );
       break;
       case "Action01":
+      case "Action02":
         naviRef.current.navigate("Login");
       break;
-      case "QRScan":        
-      case "Action02":
+      case "QRScan":   
       case "Action03":
         naviRef.current.goBack();
       break;        

@@ -20,16 +20,11 @@ export const Action03 = ({navigation, route}) => {
     //다음페이지 함수
     const goToAction04 = async () =>{
         //Request : iot open 요청
-        let res1 = await awsRequest.server_IotRequest(qrData,"off");
+        let res1 = await awsRequest.lambda_SetDeviceState(qrData,"off");
         if (res1 == false) return;
         
         navigation.navigate('Action04', {qrData:qrData});     
     }
-
-    //취소가 있어야지 않을까..? 보류
-    // const goToAction01 = () =>{
-    //     navigation.navigate('Action01');
-    // }
 
     //-------------------UseEffect----------------------
     useEffect(() => {        

@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View, Image } from 'react-native';
 import { TextButton } from './../Compo/TextButton';
+import { storeJsonData } from './../Compo/storageSelf';
 
 export const Action01 = ({navigation}) => {
 
@@ -10,7 +11,11 @@ export const Action01 = ({navigation}) => {
     //-------------------함수----------------------
 
     //다음 페이지
-    const goToAction02 = () =>{
+    const goToAction02 = async () =>{
+        setting = {
+            watchFirstPage:true
+        };
+        await storeJsonData('Setting', setting);
         navigation.navigate('Action02');
     }
 

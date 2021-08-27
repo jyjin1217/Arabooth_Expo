@@ -76,8 +76,17 @@ export const Login = ({navigation}) => {
             return;
         }
         
-        //사용했던 데이터가 없거나, 사용중이 아니라면 저장 후 이동
-        saveAndNextPage('Action01', null);
+        //사용했던 데이터가 없거나, 사용중이 아닌 경우
+        let setting = await getJsonData('Setting');
+        if(setting == null) {
+            setting = {
+                watchFirstPage:false
+            };
+            await storeJsonData('Setting', setting);
+        }        
+
+        if(setting.watchFirstPage) saveAndNextPage('Action02', null);
+        else saveAndNextPage('Action01', null);
     }
 
     //다음 페이지 이동, 사용자 저장
@@ -124,7 +133,7 @@ export const Login = ({navigation}) => {
 
         //기존 사용자의 부스 이용 종료처리
         //Request : iot close 요청
-        let res1 = await awsRequest.server_IotMessage(lastBooth,"on");
+        let res1 = await awsRequest.lambda_SetDeviceState(lastBooth,"on");
         if (res1 == false) return;
 
         //퇴실시, Log 저장

@@ -1,55 +1,55 @@
 import { Alert } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getJsonData } from './../Compo/storageSelf';
 
-export const server_IotRequest = async (boothName, operation) => {
+//Deprecated
+// export const server_IotRequest = async (boothName, operation) => {
 
-    if (boothName == "테스트") return true;
+//     if (boothName == "테스트") return true;
 
-    let result;
-    let patchMsg = boothName + " " + operation;
+//     let result;
+//     let patchMsg = boothName + " " + operation;
 
-    //let response = await fetch('http://10.0.2.2:5000/userMessage/' + patchMsg,{method:'POST'});        
-    let response = await fetch('http://arabooth-env.eba-28bbr78h.ap-northeast-2.elasticbeanstalk.com/userMessage/' + patchMsg,{method:'POST'});    
-    let rJson = await response.json();        
+//     //let response = await fetch('http://10.0.2.2:5000/userMessage/' + patchMsg,{method:'POST'});        
+//     let response = await fetch('http://arabooth-env.eba-28bbr78h.ap-northeast-2.elasticbeanstalk.com/userMessage/' + patchMsg,{method:'POST'});    
+//     let rJson = await response.json();        
 
-    //Request 실패시
-    if (rJson.hasOwnProperty('msg')){        
-        switch(rJson['msg']){
-            case 'Failed':                
-                switch(rJson['detail']){
-                    case 'WrongMessage':                            
-                    case 'NoneMatch':
-                        Alert.alert(
-                            "Wrong message sent",
-                            "App will be initailized. Please try again",
-                            [
-                                { text: "OK" , onPress: () => { AsyncStorage.clear(); } } 
-                            ],
-                            { cancelable: false }
-                        );
-                        break;
-                    case 'RequestFail':
-                        Alert.alert(
-                            "Request Fail",
-                            "Please try again after few seconds later",
-                            [
-                                { text: "OK" } 
-                            ],
-                            { cancelable: false }
-                        );
-                        break;
-                    default:break;
-                }     
+//     //Request 실패시
+//     if (rJson.hasOwnProperty('msg')){        
+//         switch(rJson['msg']){
+//             case 'Failed':                
+//                 switch(rJson['detail']){
+//                     case 'WrongMessage':                            
+//                     case 'NoneMatch':
+//                         Alert.alert(
+//                             "Wrong message sent",
+//                             "App will be initailized. Please try again",
+//                             [
+//                                 { text: "OK" , onPress: () => { AsyncStorage.clear(); } } 
+//                             ],
+//                             { cancelable: false }
+//                         );
+//                         break;
+//                     case 'RequestFail':
+//                         Alert.alert(
+//                             "Request Fail",
+//                             "Please try again after few seconds later",
+//                             [
+//                                 { text: "OK" } 
+//                             ],
+//                             { cancelable: false }
+//                         );
+//                         break;
+//                     default:break;
+//                 }     
                 
-                result = false;
-                break;
-            default: result = rJson; break;
-        }
-    }
+//                 result = false;
+//                 break;
+//             default: result = rJson; break;
+//         }
+//     }
 
-    return result;
-}
+//     return result;
+// }
 
 export const lambda_LoginCheck = async (email, password) => {
     let result;
@@ -121,5 +121,35 @@ export const lambda_SaveLog = async (isEnd) => {
     else
         result = rJson;
 
+    return result;
+}
+
+export const lambda_SetDeviceState = async (boothName, changeState) => {
+    if (boothName == "테스트") return true;
+    
+    let requestDate = {
+        booth:boothName,
+        state:changeState
+    };
+    let response = await fetch('https://a3df8nbpa2.execute-api.ap-northeast-2.amazonaws.com/v1/iot',{
+        method:'POST',
+        body:JSON.stringify(requestDate)
+    });
+    let rJson = await response.json();
+    console.log(rJson);
+
+    let result = true;
+    if (rJson.hasOwnProperty('Error')){
+        result = false;
+        Alert.alert(
+            "Request Fail",
+            rJson.Error,
+            [
+                { text: "OK" } 
+            ],
+            { cancelable: false }
+        );        
+    }
+    
     return result;
 }

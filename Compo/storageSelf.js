@@ -58,4 +58,9 @@ attemptUser = {
     info: json
 }
 
+//최초 저장 : Login.js
+Setting = {
+    watchFirstPage: bool
+}
+
 */

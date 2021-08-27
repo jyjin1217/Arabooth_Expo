@@ -2,7 +2,7 @@
   "expo": {
     "name": "AraBooth",
     "slug": "AraBooth",
-    "version": "1.0.5",
+    "version": "1.0.6",
     "orientation": "portrait",
     "icon": "./assets/araIcon.png",
     "splash": {
@@ -18,12 +18,13 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.mocha.Arabooth",
+      "bundleIdentifier": "com.worknall.arabooth",
       "config":{
         "usesNonExemptEncryption":false
       }
     },
     "android": {
+      "versionCode":3,
       "package": "com.mocha.Arabooth"
     },
     "web": {
