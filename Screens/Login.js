@@ -9,14 +9,14 @@ export const Login = ({navigation}) => {
     //-------------------변수----------------------
 
     //로그인 정보 입력 변수
-    const [emailStr, setEmailStr] = useState("Arabooth@work&all.com");    
+    const [idStr, setIdStr] = useState("Arabooth@work&all.com");    
     const [realPw, setRealPw] = useState("1234");
     const [pwStr, setPwStr] = useState("****");
     const [isAutoLogin, setAutoLogin] = useState(true);
     const [autoLoginDisplay, setAutoLoginDisplay] = useState('none');
 
     //기존 사용자 정보 변수(로그인 체크시/Modal 이용)
-    const [lastEmail, setLastEmail] = useState("");
+    const [lastId, setLastId] = useState("");
     const [lastName, setLastName] = useState("");
     const [lastIsUse, setLastIsUse] = useState(false);
     const [lastBooth, setLastBooth] = useState("");
@@ -54,18 +54,18 @@ export const Login = ({navigation}) => {
     const checkLogin = async () =>{
 
         //로그인 정보 유효성 request     
-        let res1 = await awsRequest.lambda_LoginCheck(emailStr, realPw);        
+        let res1 = await awsRequest.lambda_LoginCheck(idStr, realPw);        
         if (res1 == false) return;
 
         //데이터 임시 저장 후 세이브시 사용, useState때문인지 변수에 담으면 지워지기에 storage 저장
-        let attemptUser = {
-            info:res1
+        let curLoginInfo = {
+            tempLogin:res1
         }
-        await storeJsonData('attemptUser', attemptUser);
+        await storeJsonData('TempData', curLoginInfo);
 
         //사용중이던 부스가 있다면
         if(lastIsUse) {
-            if(lastEmail == emailStr) {
+            if(lastId == idStr) {
                 //기존 유저 로그인이라면 사용 중 페이지로 연결
                 saveAndNextPage('Action04', {qrData:lastBooth}); 
             }
@@ -76,44 +76,49 @@ export const Login = ({navigation}) => {
             return;
         }
         
-        //사용했던 데이터가 없거나, 사용중이 아닌 경우
+        //사용했던 데이터가 없거나, 사용중이 아닌 경우 아래 진행
+        //첫번째 안내화면 노출 설정
         let setting = await getJsonData('Setting');
-        if(setting == null) {
-            setting = {
+        let isNew = false;
+        if (setting == null) isNew = true;
+        else {
+            if (!setting.hasOwnProperty('watchFirstPage')) isNew = true;
+        }
+
+        if(isNew) {
+            let newSetting = {
                 watchFirstPage:false
             };
-            await storeJsonData('Setting', setting);
+            await storeJsonData('Setting', newSetting);
+            setting = await getJsonData('Setting');
         }        
-
+        
         if(setting.watchFirstPage) saveAndNextPage('Action02', null);
         else saveAndNextPage('Action01', null);
     }
 
     //다음 페이지 이동, 사용자 저장
     const saveAndNextPage = async (stackName, nextPageData) => {
-        let autoLoginJosn = {
-            isAuto:isAutoLogin
+        let settingJson = {
+            autoLogin:isAutoLogin
         }
-        await storeJsonData('autoLogin', autoLoginJosn);
+        await storeJsonData('Setting', settingJson);
 
-        let attemptUser = await getJsonData('attemptUser');
-        //데이터가 없을 경우 ""로 저장되어있다.
+        let tempData = await getJsonData('TempData');
+        //데이터가 없는 경우가 있고, ""로 저장되어있다.
         //추후 데이터 표시영역에서 활용하기 위해 정보 변경
-        let userCompany = attemptUser.info['company'];
-        if (userCompany == "") userCompany = "무소속";
-        let userName = attemptUser.info['name'];
-        if (userName == "") userName = "???";
-        let userPhone = attemptUser.info['phone'];
-        if (userPhone == "") userPhone = "000xxxxxxxx";
+        let userCompany = (tempData.tempLogin['company'] == "") ? "무소속" : tempData.tempLogin['company'];
+        let userName = (tempData.tempLogin['name'] == "") ? "사용자" : tempData.tempLogin['name'];
+        let userPhone = (tempData.tempLogin['phone'] == "") ? "010xxxxxxxx" : tempData.tempLogin['phone'];
 
-        let loginJson = {
-            email:emailStr,
+        let curUserJson = {
+            id:idStr,
             pw:realPw,
             company:userCompany,
             name:userName,
             phone:userPhone
         }
-        await storeJsonData('login', loginJson);
+        await storeJsonData('CurUser', curUserJson);
 
         if(nextPageData == null)
             navigation.navigate(stackName);
@@ -140,13 +145,12 @@ export const Login = ({navigation}) => {
         await awsRequest.lambda_SaveLog(true);
 
         //사용중 부스 데이터 변경
-        let usingDataJson = {
-            isUse:false,
-            startTime:null,
+        let curUserJson = {
+            isUsing:false,
             boothName:null,
-            sDate:null
+            startDate:null
         }
-        await storeJsonData('isUsing', usingDataJson);
+        await storeJsonData('CurUser', curUserJson);
 
         //로그인
         saveAndNextPage('Action01', null);
@@ -155,43 +159,43 @@ export const Login = ({navigation}) => {
     //-------------------UseEffect----------------------
     //페이지 오픈시 최초 한번([] 설정) 실행, 
     useEffect(() => {        
-        (async () => {            
-            let autoLoginJson = await getJsonData('autoLogin');
-            let loginJson = await getJsonData('login');
-            let usingData = await getJsonData('isUsing');
 
-            if(loginJson && usingData) {
+        (async () => {    
+
+            let settingJson = await getJsonData('Setting');
+            let curUserJson = await getJsonData('CurUser');
+            
+            if(curUserJson) {
                 //이전 사용중이던 정보 저장, 로그인 체킹 및 Modal에서 이용하게 됌
-                setLastEmail(loginJson.email);
-                setLastName(loginJson.name);
-                setLastIsUse(usingData.isUse);
-                setLastBooth(usingData.boothName);
-            }
+                setLastId(curUserJson.id);
+                setLastName(curUserJson.name);
+                setLastIsUse(curUserJson.isUsing);
+                setLastBooth(curUserJson.boothName);
 
-            if(autoLoginJson && loginJson){
-                //자동로그인 세팅이라면
-                if(autoLoginJson.isAuto){
-                    //저장된 Id,password 확인/세팅                    
-                    if(loginJson){                
-                        setEmailStr(loginJson.email);                
-                        setRealPw(loginJson.pw);
+                if(settingJson) {
+                    //자동로그인 세팅이라면
+                    if(settingJson.autoLogin) {
+                        //저장된 Id,password 확인/세팅
+                        setIdStr(curUserJson.id);                
+                        setRealPw(curUserJson.pw);
 
                         let curPw = "";
-                        for(let i = 0; i < loginJson.pw.length; i++)
+                        for(let i = 0; i < curUserJson.pw.length; i++)
                             curPw += "*";                    
                         setPwStr(curPw);
+
+                        //체크 Display 변경
+                        setAutoLoginDisplay('flex');
                     }
-                    
-                    //체크 Display 변경
-                    setAutoLoginDisplay('flex');
+                    else {
+                        //체크 Display 변경
+                        setAutoLoginDisplay('none');
+                    }
                 }
-                else {
-                    //체크 Display 변경
-                    setAutoLoginDisplay('none');
-                }                
             }
             
         })();
+
     }, []);
 
     //-------------------커스텀 버튼----------------------
@@ -302,7 +306,7 @@ export const Login = ({navigation}) => {
                 </View>
                 <View style={styles.infoContainer}>
                     <Text style={styles.text01}>YOUR EMAIL</Text>
-                    <TextInput style={styles.inputStyle} value={emailStr} onChangeText={text => setEmailStr(text)}></TextInput>
+                    <TextInput style={styles.inputStyle} value={idStr} onChangeText={text => setIdStr(text)}></TextInput>
                     <Text style={styles.text01}>PASSWORD</Text>
                     <TextInput style={styles.inputStyle} value={pwStr} onChangeText={text => changePwStr(text)}></TextInput>
                     <TouchableOpacity style={[{flexDirection:"row",alignItems:"center"}]} onPress={()=>changeAutoLogin()}>

@@ -3,6 +3,7 @@ import { BackHandler, Alert } from 'react-native'
 import { NavigationContainer } from '@react-navigation/native'
 import { createStackNavigator, HeaderBackButton } from '@react-navigation/stack'
 import * as SplashScreen from 'expo-splash-screen';
+import Constants from 'expo-constants';
 import { Login } from './Screens/Login'
 import { Action01 } from './Screens/Action01'
 import { Action02 } from './Screens/Action02'
@@ -10,7 +11,8 @@ import { QRScan } from './Screens/QRScan'
 import { Action03 } from './Screens/Action03'
 import { Action04 } from './Screens/Action04'
 import { Action05 } from './Screens/Action05'
-
+import * as storage from './Compo/storageSelf'
+import { lambda_checkVersion } from './Requests/AwsRequest'
 
 export default App = () => {
 
@@ -20,7 +22,7 @@ export default App = () => {
 
   //custom back button 생성
   const customBackButton = () => {
-    //console.log(naviRef);//가능한 함수 확인하고 싶을시 실행
+    //console.log(naviRef);//실행가능한 함수 목록 확인하고 싶을시 실행
 
     const curRoute = naviRef.current.getCurrentRoute().name;
     switch(curRoute){
@@ -86,6 +88,78 @@ export default App = () => {
     return () => BackHandler.addEventListener("hardwareBackPress", customBackButton);
   }, []);
 
+  //version 관리
+  useEffect(() => {
+    let version = Constants.manifest.version;
+
+    //내부 저장 변경
+    let verStr = version.split('.');
+    if(verStr[0] == "1" && verStr[1] == "0" && Number(verStr[2]) <= 7){      
+
+      (async () => {
+        
+        let tem1 = await storage.getJsonData("autoLogin");
+        if(tem1 != null) {
+          let newSetting = {
+            autoLogin:tem1.isAuto
+          }
+          await storage.storeJsonData("Setting", newSetting);
+          await storage.deleteData("autoLogin");
+        }
+
+        let tem2 = await storage.getJsonData("login");
+        if(tem2 != null) {
+          let newCurUser = {
+            id:tem2.email,
+            pw:tem2.pw,
+            company:tem2.company,
+            name:tem2.name,
+            phone:tem2.phone
+          }
+          await storage.storeJsonData("CurUser", newCurUser);
+          await storage.deleteData("login");
+        }
+
+        let tem3 = await storage.getJsonData("isUsing");
+        if (tem3 != null) {
+          let newCurUser = {
+            isUsing:tem3.isUse,
+            boothName:tem3.boothName,
+            startDate:tem3.startTime,
+            startUTCmsec:tem3.sNow
+          }
+          await storage.storeJsonData("CurUser", newCurUser);
+          await storage.deleteData("isUsing");
+        }
+
+        let tem4 = await storage.getJsonData("attemptUser");
+        if (tem4 != null) {
+          await storage.deleteData("attemptUser");
+        }
+        
+      })();
+      
+    }
+    
+    //version 체크 및 업데이트 요청
+    (async () => {
+
+      let isLastVersion = await lambda_checkVersion(version);
+      if (isLastVersion == false) {
+        Alert.alert(
+          "App Update",
+          "새로운 버전이 존재합니다. 앱을 업데이트 후 사용을 부탁드립니다.",
+          [
+            { text: "OK" , onPress: () => BackHandler.exitApp() } 
+          ],
+          { cancelable: false }
+        );
+      }
+
+    })();
+
+
+  }, []);
 
   return (
     
@@ -97,7 +171,7 @@ export default App = () => {
         headerLeft:() => (
           <HeaderBackButton onPress={()=>customBackButton()} />
         ),
-        headerShown:false //ios 빌드시에는 주석처리 필요
+        //headerShown:false //ios 빌드시에는 주석처리 필요
       }}>
         <Stack.Screen name="Login" component={Login}></Stack.Screen>
         <Stack.Screen name="Action01" component={Action01}></Stack.Screen>

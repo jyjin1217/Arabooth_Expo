@@ -56,7 +56,7 @@ export const QRScan = ({navigation}) => {
     if (hasPermission === false) {
         return (
             <View style={[{flex:1,alignItems:'center',justifyContent:'center'}]}>
-                <Text>No access to camera</Text>
+                <Text>Can not access to camera</Text>
             </View>
         );
     }
@@ -112,12 +112,12 @@ export const QRScan = ({navigation}) => {
                     style={StyleSheet.absoluteFillObject}>
                 </BarCodeScanner>
             </View>
-            {/* <View style={styles.bottomContainer}>
+            <View style={styles.bottomContainer}>
                 <TextButton info={textBtnInfo} />
                 <TouchableOpacity style={avdTemp.touchable} onPress={()=>goToAction03("테스트")}>
                     <Text style={avdTemp.text}>테스트용:다음페이지</Text>
                 </TouchableOpacity>
-            </View> */}
+            </View>
         </View>
     );
 }

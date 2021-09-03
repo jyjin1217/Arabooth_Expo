@@ -3,6 +3,7 @@ import { StyleSheet, Text, View, Image, Modal } from 'react-native';
 import { TextButton } from './../Compo/TextButton';
 import { storeJsonData, getJsonData } from './../Compo/storageSelf';
 import * as awsRequest from './../Requests/AwsRequest';
+import * as commonFunc from './../Compo/commonFunc';
 
 export const Action04 = ({navigation, route}) => {
 
@@ -12,16 +13,13 @@ export const Action04 = ({navigation, route}) => {
     const {qrData} = route.params;
     
     //입실시점 시간 체크
-    let started = new Date();
-    let startedApm = (started.getHours() > 12) ? "PM" : "AM";
-    let startHour = (started.getHours() > 12) ? started.getHours() - 12 : started.getHours();    
     const [curDate, setCurDate] = useState({
-        year:started.getFullYear(),
-        month:(started.getMonth() + 1 < 10) ? "0" + (started.getMonth() + 1) : started.getMonth() + 1,
-        day:(started.getDate() < 10) ? "0" + started.getDate() : started.getDate(),
-        hour:(startHour < 10) ? "0" + startHour : startHour,
-        minute:(started.getMinutes() < 10) ? "0" + started.getMinutes() : started.getMinutes(),
-        apm:startedApm
+        year:"0000",
+        month:"00",
+        day:"00",
+        hour:"00",
+        minute:"00",
+        apm:"00"
     });
 
     //현재 시간, 퇴실 시간 체크용
@@ -48,12 +46,12 @@ export const Action04 = ({navigation, route}) => {
 
         //퇴실시, 저장된 데이터 사용종료 처리
         let usingDataJson = {
-            isUse:false,
-            startTime:null,
+            isUsing:false,
+            startDate:null,
             boothName:null,
-            sDate:null
+            startUTCmsec:null
         }
-        await storeJsonData('isUsing', usingDataJson);        
+        await storeJsonData('CurUser', usingDataJson);        
 
         navigation.navigate('Action05', {qrData:qrData,sDate:curDate});
     }
@@ -61,8 +59,8 @@ export const Action04 = ({navigation, route}) => {
     //Modal 오픈 함수
     const openModal = () => { 
         setNow(new Date());
-        setApm((now.getHours() > 12) ? "PM" : "AM");
-        setNowHour((now.getHours() > 12) ? now.getHours() - 12 : now.getHours());
+        setApm((now.getHours() >= 12) ? "PM" : "AM");
+        setNowHour((now.getHours() >= 12) ? now.getHours() - 12 : now.getHours());
         setModalVisible(true);
     }
 
@@ -72,51 +70,45 @@ export const Action04 = ({navigation, route}) => {
     //-------------------UseEffect----------------------
 
     //페이지 오픈시 최초 한번([] 설정) 실행, 최초사용/입실/앱재시작 구분
-    useEffect(() => {        
-        (async () => {
-            let usingData = await getJsonData('isUsing');
+    useEffect(() => {   
 
-            if(usingData){                
-                if(usingData.isUse){                    
-                    //사용 미종료/앱 재시작시, 저장된 시작시간으로 변경
-                    //로그인페이지로부터 이동된 상황
-                    //qrData(부스이름)은 로그인페이지에서 전달(저장되어 있긴한데.., 현재 페이지 로드에 파라미터가 존재하기에 문제가 생기지 않도록)
-                    setCurDate({
-                        year:usingData.startTime.year,
-                        month:usingData.startTime.month,
-                        day:usingData.startTime.day,
-                        hour:usingData.startTime.hour,
-                        minute:usingData.startTime.minute,
-                        apm:usingData.startTime.apm
-                    });
-                }
-                else {
-                    //입실시, 현재 시간을 저장
-                    let usingDataJson = {
-                        isUse:true,
-                        startTime:curDate,
-                        boothName:qrData,
-                        sDate:started.getFullYear() + '.' + (started.getMonth() + 1) + '.' + started.getDate() + '.' + started.getHours() + '.' + started.getMinutes() + '.' + started.getSeconds(),
-                        sNow:Date.now()
-                    }
-                    await storeJsonData('isUsing', usingDataJson);
-                    await awsRequest.lambda_SaveLog(false);
-                }
+        (async () => {
+
+            let curUser = await getJsonData('CurUser');
+
+            let isNew = true;
+            if (curUser.hasOwnProperty('isUsing')) {
+                if (curUser.isUsing) isNew = false;
             }
-            else{
-                //최초 storage사용시, key값 미존재시
+
+            let dateStr;
+            if (isNew) dateStr = commonFunc.getCurDate_CustomStr();
+            else dateStr = curUser.startDate;
+
+            if (isNew) {
                 let usingDataJson = {
-                    isUse:true,
-                    startTime:curDate,
+                    isUsing:true,
                     boothName:qrData,
-                    sDate:started.getFullYear() + '.' + (started.getMonth() + 1) + '.' + started.getDate() + '.' + started.getHours() + '.' + started.getMinutes() + '.' + started.getSeconds(),
-                    sNow:Date.now()
+                    startDate:dateStr,
+                    startUTCmsec:Date.now()
                 }
-                await storeJsonData('isUsing', usingDataJson);
+                await storeJsonData('CurUser', usingDataJson);
                 await awsRequest.lambda_SaveLog(false);
             }
             
+            let dateArr = dateStr.split('.');
+            let startHour = (Number(dateArr[3]) >= 12) ? Number(dateArr[3]) - 12 : Number(dateArr[3]);
+            setCurDate({
+                year:dateArr[0],
+                month:dateArr[1],
+                day:dateArr[2],
+                hour:commonFunc.numToZeroStr(startHour),
+                minute:dateArr[4],
+                apm:(Number(dateArr[3]) >= 12) ? "PM" : "AM"
+            });
+
         })();
+
     }, []);
 
     //-------------------커스텀 버튼----------------------

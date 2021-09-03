@@ -1,5 +1,6 @@
 import { Alert } from 'react-native';
 import { getJsonData } from './../Compo/storageSelf';
+import * as commonFunc from './../Compo/commonFunc';
 
 //Deprecated
 // export const server_IotRequest = async (boothName, operation) => {
@@ -77,37 +78,36 @@ export const lambda_LoginCheck = async (email, password) => {
 
 export const lambda_SaveLog = async (isEnd) => {    
 
-    let loginJson = await getJsonData('login');
-    let usingJson = await getJsonData('isUsing');
+    let curUser = await getJsonData('CurUser');
+    if(curUser.boothName == "테스트") return true;
 
     let endStr = "occupied";
     let interval = "progressing";
 
     if (isEnd) {
-        let endTime = new Date();
-        endStr = endTime.getFullYear() + '.' + (endTime.getMonth() + 1) + '.' + endTime.getDate() + '.' + endTime.getHours() + '.' + endTime.getMinutes() + '.' + endTime.getSeconds();
-
-        interval = parseInt((Date.now() - usingJson.sNow) / 1000);
+        endStr = commonFunc.getCurDate_CustomStr();
+        interval = parseInt((Date.now() - curUser.startUTCmsec) / 1000);
         if (interval == 0) interval = 1; //AWS에(?), 서버에(?), 0으로 리퀘스트를 보내면 데이터가 없는 걸로 판단된다. 뭐.. 맞긴하지..
     }
 
     let logData ={
-        boothName:usingJson.boothName,
-        startDate:usingJson.sDate,
+        boothName:curUser.boothName,
+        startDate:curUser.startDate,
         endDate:endStr,
-        user:loginJson.name,
-        company:loginJson.company,
+        user:curUser.name,
+        company:curUser.company,
         duration:interval
     }
 
-    let result;
+    let result = true;
     let response = await fetch('https://a3df8nbpa2.execute-api.ap-northeast-2.amazonaws.com/v1/log', {
         method:'POST',
         body:JSON.stringify(logData)
     });
     let rJson = await response.json();
 
-    if (rJson.hasOwnProperty('Error')){   
+    if (rJson.hasOwnProperty('Error')){ 
+        result = false;  
         Alert.alert(
             "Request Fail",
             rJson['Error'],
@@ -115,11 +115,8 @@ export const lambda_SaveLog = async (isEnd) => {
                 { text: "OK" } 
             ],
             { cancelable: false }
-        );
-        result = false;        
+        );                
     }
-    else
-        result = rJson;
 
     return result;
 }
@@ -136,7 +133,6 @@ export const lambda_SetDeviceState = async (boothName, changeState) => {
         body:JSON.stringify(requestDate)
     });
     let rJson = await response.json();
-    console.log(rJson);
 
     let result = true;
     if (rJson.hasOwnProperty('Error')){
@@ -149,6 +145,33 @@ export const lambda_SetDeviceState = async (boothName, changeState) => {
             ],
             { cancelable: false }
         );        
+    }
+    
+    return result;
+}
+
+export const lambda_checkVersion = async (curVersion) => {
+
+    let response = await fetch('https://a3df8nbpa2.execute-api.ap-northeast-2.amazonaws.com/v1/version?AppName=Arabooth', {
+        method:'POST'
+    });
+    let rJson = await response.json();
+
+    let result = true;
+    if (rJson.hasOwnProperty('Error')) {
+        result = false;
+        Alert.alert(
+            "Request Fail",
+            rJson.Error,
+            [
+                { text:"OK" }
+            ],
+            { cancelable: false }
+        );
+    }
+
+    if (result) {
+        if (rJson['Version'] != curVersion) result = false;
     }
     
     return result;

@@ -12,7 +12,7 @@ export const Action01 = ({navigation}) => {
 
     //다음 페이지
     const goToAction02 = async () =>{
-        setting = {
+        let setting = {
             watchFirstPage:true
         };
         await storeJsonData('Setting', setting);

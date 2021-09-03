@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, Image } from 'react-native';
-import { TextButton } from './../Compo/TextButton'
+import { TextButton } from './../Compo/TextButton';
+import * as commonFunc from './../Compo/commonFunc';
 
 export const Action05 = ({navigation, route}) => { 
 
@@ -9,27 +10,40 @@ export const Action05 = ({navigation, route}) => {
     //qr, 입실시점 데이터
     const {qrData, sDate} = route.params;
 
-    //현재 시간, 퇴실 시간 체크용
-    let now = new Date();
-    let nowApm = (now.getHours() > 12) ? "PM" : "AM";
-    let nowHour = (now.getHours() > 12) ? now.getHours() - 12 : now.getHours();
-    let curDate = {
-        year:now.getFullYear(),
-        month:(now.getMonth() + 1 < 10) ? "0" + (now.getMonth() + 1) : now.getMonth() + 1,
-        day:(now.getDate() < 10) ? "0" + now.getDate() : now.getDate(),
-        hour:(nowHour < 10) ? "0" + nowHour : nowHour,
-        minute:(now.getMinutes() < 10) ? "0" + now.getMinutes() : now.getMinutes(),
-        apm:nowApm
-    }
+    //퇴실 시간
+    const [endDate, setEndDate] = useState({
+        year:"0000",
+        month:"00",
+        day:"00",
+        hour:"00",
+        minute:"00",
+        apm:"00"
+    });
 
     //-------------------함수----------------------
 
-     //다음 페이지 함수
-     const goToAction02 = () =>{
+    //다음 페이지 함수
+    const goToAction02 = () =>{
         navigation.navigate('Action02');
     }
 
     //-------------------UseEffect----------------------
+    useEffect(() => {   
+
+        let dateStr = commonFunc.getCurDate_CustomStr();
+        let dateArr = dateStr.split('.');
+        let startHour = (Number(dateArr[3]) >= 12) ? Number(dateArr[3]) - 12 : Number(dateArr[3]);
+        setEndDate({
+            year:dateArr[0],
+            month:dateArr[1],
+            day:dateArr[2],
+            hour:commonFunc.numToZeroStr(startHour),
+            minute:dateArr[4],
+            apm:(Number(dateArr[3]) >= 12) ? "PM" : "AM"
+        });
+
+    }, []);
+
     //-------------------커스텀 버튼----------------------  
     
     //다음 페이지 버튼 속성
@@ -89,12 +103,12 @@ export const Action05 = ({navigation, route}) => {
                             <View style={styles.boxArea01}><Text style={[{color:'#000000',fontSize:18, fontWeight:"bold"}]}>퇴실시간</Text></View>
                             <View style={styles.boxArea02}>
                                 <Text style={[{color:'#979797',fontSize:18}]}>
-                                    {curDate.year}. {curDate.month}. {curDate.day}
+                                    {endDate.year}. {endDate.month}. {endDate.day}
                                 </Text>
                             </View>
                             <View style={styles.boxArea03}>
                                 <Text style={[{color:'#979797',fontSize:18}]}>
-                                    {curDate.apm} {curDate.hour}:{curDate.minute}
+                                    {endDate.apm} {endDate.hour}:{endDate.minute}
                                 </Text>
                             </View>
                         </View>

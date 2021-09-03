@@ -29,7 +29,7 @@ export const Action03 = ({navigation, route}) => {
     //-------------------UseEffect----------------------
     useEffect(() => {        
         (async () => {            
-            let loginJson = await getJsonData('login');
+            let loginJson = await getJsonData('CurUser');
             setUserCompany(loginJson['company']);
             setUserName(loginJson['name']);            
         })();
