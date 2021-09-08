@@ -2,11 +2,11 @@ import React from 'react';
 import { StyleSheet, Text, View, Image } from 'react-native';
 import { TextButton } from './../Compo/TextButton';
 import { storeJsonData } from './../Compo/storageSelf';
+import { getAdjustSizeByWidth } from './../Compo/commonFunc'
 
 export const Action01 = ({navigation}) => {
 
     //-------------------변수----------------------
-
 
     //-------------------함수----------------------
 
@@ -28,15 +28,15 @@ export const Action01 = ({navigation}) => {
         touchable:{
             alignItems:'center',
             justifyContent:'center',
-            borderRadius:12,
+            borderRadius:getAdjustSizeByWidth(12),
             backgroundColor: "#00C4CC",
             width:"100%",
-            height: 64,
+            height: getAdjustSizeByWidth(64),
         },
         text:{
             color:"#FFFFFF",
             fontWeight:"bold",
-            fontSize:20,
+            fontSize:getAdjustSizeByWidth(20),
         }
     });    
     const textBtnInfo = {
@@ -115,15 +115,15 @@ const styles = StyleSheet.create({
     //--------------------------------
     text01:{
         color:"#00c4cc", 
-        fontSize:45,
+        fontSize:getAdjustSizeByWidth(45),
     },
     text02:{
         color:"#787878",
-        fontSize:20,
+        fontSize:getAdjustSizeByWidth(20),
     },
     text03:{
         color:"#000000", 
-        fontSize:20,
+        fontSize:getAdjustSizeByWidth(20),
         fontWeight:"bold"
     },   
     

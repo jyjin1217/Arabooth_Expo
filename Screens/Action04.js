@@ -4,6 +4,7 @@ import { TextButton } from './../Compo/TextButton';
 import { storeJsonData, getJsonData } from './../Compo/storageSelf';
 import * as awsRequest from './../Requests/AwsRequest';
 import * as commonFunc from './../Compo/commonFunc';
+import { getAdjustSizeByWidth } from './../Compo/commonFunc';
 
 export const Action04 = ({navigation, route}) => {
 
@@ -121,12 +122,12 @@ export const Action04 = ({navigation, route}) => {
             backgroundColor: "#000000",
             width:"100%",
             height: "100%",
-            borderBottomRightRadius:12
+            borderBottomRightRadius:getAdjustSizeByWidth(12)
         },
         text:{
             color:"#FFFFFF",
             fontWeight:"bold",
-            fontSize:18,
+            fontSize:getAdjustSizeByWidth(18),
         }
     });    
     const modalExitInfo = {
@@ -143,12 +144,12 @@ export const Action04 = ({navigation, route}) => {
             backgroundColor: "#ff7856",
             width:"100%",
             height: "100%",
-            borderBottomLeftRadius:12
+            borderBottomLeftRadius:getAdjustSizeByWidth(12)
         },
         text:{
             color:"#FFFFFF",
             fontWeight:"bold",
-            fontSize:18,
+            fontSize:getAdjustSizeByWidth(18),
         }
     });    
     const modalNextInfo = {
@@ -162,15 +163,15 @@ export const Action04 = ({navigation, route}) => {
         touchable:{
             alignItems:'center',
             justifyContent:'center',
-            borderRadius:12,
+            borderRadius:getAdjustSizeByWidth(12),
             backgroundColor: "#ff7856",
             width:"100%",
-            height: 64,
+            height: getAdjustSizeByWidth(64),
         },
         text:{
             color:"#FFFFFF",
             fontWeight:"bold",
-            fontSize:20,
+            fontSize:getAdjustSizeByWidth(20),
         }
     });    
     const textBtnInfo = {
@@ -189,9 +190,9 @@ export const Action04 = ({navigation, route}) => {
                         <View style={styles.modalBox_1}>
                             <Image style={styles.modal_img} source={require('./../assets/drawable-xxxhdpi/icon-alert-error_24px.png')}></Image>
                             <Text></Text>
-                            <Text style={[{color:"#000000",fontSize:20,fontWeight:"bold"}]}>정말 퇴실 하시겠습니까?</Text>
-                            <Text style={[{color:"#c0c0c0",fontSize:18}]}>
-                                퇴실시간&nbsp;
+                            <Text style={styles.modal_text1}>정말 퇴실 하시겠습니까?</Text>
+                            <Text style={styles.modal_text2}>
+                                퇴실시간 : &nbsp;
                                 {now.getFullYear()}.&nbsp;
                                 {(now.getMonth() + 1 < 10) ? "0" + (now.getMonth() + 1) : now.getMonth() + 1}.&nbsp;
                                 {(now.getDate() < 10) ? "0" + now.getDate() : now.getDate()}&nbsp;
@@ -210,44 +211,44 @@ export const Action04 = ({navigation, route}) => {
 
             <View style={styles.topContainer}>
                 <View style={styles.top01}>
-                    <Text style={[{color:"#00c4cc",fontSize:45}]}>Open</Text>
+                    <Text style={styles.text1}>Open</Text>
                 </View>
                 <View style={styles.top02}>
                     <Image style={styles.img01} source={require('./../assets/drawable-xxxhdpi/compo11-1.png')}></Image>
                     <Text></Text>
-                    <Text style={[{color:"#00c4cc",fontSize:28,fontWeight:"bold"}]}>입실이 승인되었습니다</Text>
-                    <Text style={[{color:"#000000",fontSize:24,}]}>스마트부스 문을 열고 입실하세요!</Text>
+                    <Text style={styles.text2}>입실이 승인되었습니다</Text>
+                    <Text style={styles.text3}>스마트부스 문을 열고 입실하세요!</Text>
                 </View>
                 <View style={styles.top03}>
                     <View style={styles.top03_1}>
                         <View style={styles.box01}>
-                            <Text numberOfLines={1} ellipsizeMode="middle" style={[{color:'#000000',fontSize:18, paddingHorizontal:"5%"}]}>{qrData}</Text>
+                            <Text numberOfLines={1} ellipsizeMode="middle" style={styles.text4}>{qrData}</Text>
                         </View>
                         <View style={styles.box02}>
-                            <View style={styles.boxArea04}><Text style={[{color:'#000000',fontSize:18, fontWeight:"bold"}]}>입실시간</Text></View>
+                            <View style={styles.boxArea04}><Text style={styles.text5}>입실시간</Text></View>
                             <View style={styles.boxArea05}>
-                                <Text style={[{color:'#979797',fontSize:18}]}>
+                                <Text style={styles.text6}>
                                     {curDate.year}. {curDate.month}. {curDate.day}
                                 </Text>
                             </View>
                             <View style={styles.boxArea03}>
-                                <Text style={[{color:'#979797',fontSize:18}]}>
+                                <Text style={styles.text6}>
                                     {curDate.apm} {curDate.hour}:{curDate.minute}
                                 </Text>
                             </View>
                         </View>
                         <View style={styles.box03}>
-                            <View style={styles.boxArea01}><Text style={[{color:'#979797',fontSize:18, fontWeight:"bold"}]}>퇴실시간</Text></View>
-                            <View style={styles.boxArea02}><Text style={[{color:'#c0c0c0',fontSize:18}]}>-</Text></View>
-                            <View style={styles.boxArea03}><Text style={[{color:'#c0c0c0',fontSize:18}]}>-</Text></View>
+                            <View style={styles.boxArea01}><Text style={styles.text7}>퇴실시간</Text></View>
+                            <View style={styles.boxArea02}><Text style={styles.text8}>-</Text></View>
+                            <View style={styles.boxArea03}><Text style={styles.text8}>-</Text></View>
                         </View>
                     </View>
                     <View style={styles.top03_2}>
-                        <Text style={[{color:'#ff7856',fontSize:18}]}>사용 종료 후</Text>
+                        <Text style={styles.text9}>사용 종료 후</Text>
                         <View style={[{flexDirection:'row'}]}>
-                            <Text style={[{color:'#ff7856',fontSize:18}]}>반드시 아래 </Text>
-                            <Text style={[{color:'#ff7856',fontSize:18,fontWeight:"bold"}]}>퇴실하기</Text>
-                            <Text style={[{color:'#ff7856',fontSize:18}]}> 버튼을 눌러주세요!</Text>
+                            <Text style={styles.text9}>반드시 아래 </Text>
+                            <Text style={styles.text10}>퇴실하기</Text>
+                            <Text style={styles.text9}> 버튼을 눌러주세요!</Text>
                         </View>
                     </View>
                 </View>
@@ -302,51 +303,51 @@ const styles = StyleSheet.create({
     //--------------------------------
     img01:{
         resizeMode:"contain",
-        width:27,
-        height:37
+        width:getAdjustSizeByWidth(27),
+        height:getAdjustSizeByWidth(37)
     },
     box01:{        
         alignItems:'center',
         justifyContent:'center',
-        borderWidth: 1,
+        borderWidth: getAdjustSizeByWidth(1),
         borderColor:"#c0c0c0",
-        borderRadius:6,
+        borderRadius:getAdjustSizeByWidth(6),
         backgroundColor: "#fbfbfb",
         width:"100%",
-        height: 43,
-        marginBottom:10,
+        height: getAdjustSizeByWidth(43),
+        marginBottom:getAdjustSizeByWidth(10),
     },
     box02:{    
-        borderWidth: 2,
+        borderWidth: getAdjustSizeByWidth(2),
         borderColor:"#00c4cc",
-        borderRadius:6,
+        borderRadius:getAdjustSizeByWidth(6),
         backgroundColor: "#ffffff",
         width:"100%",
-        height: 43,
-        marginBottom:10,
+        height: getAdjustSizeByWidth(43),
+        marginBottom:getAdjustSizeByWidth(10),
         flexDirection:"row"
     },
     box03:{    
-        borderWidth: 1,
+        borderWidth: getAdjustSizeByWidth(1),
         borderColor:"#c0c0c0",
-        borderRadius:6,
+        borderRadius:getAdjustSizeByWidth(6),
         backgroundColor: "#ffffff",
         width:"100%",
-        height: 43,
-        marginBottom:10,
+        height: getAdjustSizeByWidth(43),
+        marginBottom:getAdjustSizeByWidth(10),
         flexDirection:"row"
     },
     //--------------------------------  
     boxArea01:{
         flex:1,
-        borderRightWidth:1,
+        borderRightWidth:getAdjustSizeByWidth(1),
         borderColor:"#c0c0c0",
         alignItems:'center',
         justifyContent:'center',
     },
     boxArea02:{
         flex:1.2,
-        borderRightWidth:1,
+        borderRightWidth:getAdjustSizeByWidth(1),
         borderColor:"#c0c0c0",
         alignItems:'center',
         justifyContent:'center',
@@ -365,12 +366,57 @@ const styles = StyleSheet.create({
     },
     boxArea05:{
         flex:1.2,
-        borderRightWidth:2,
+        borderRightWidth:getAdjustSizeByWidth(2),
         borderColor:"#00c4cc",
         alignItems:'center',
         justifyContent:'center',
     },
     //--------------------------------
+    text1:{
+        color:"#00c4cc",
+        fontSize:getAdjustSizeByWidth(45)
+    },
+    text2:{
+        color:"#00c4cc",
+        fontSize:getAdjustSizeByWidth(28),
+        fontWeight:"bold"
+    },
+    text3:{
+        color:"#000000",
+        fontSize:getAdjustSizeByWidth(24)
+    },
+    text4:{
+        color:'#000000',
+        fontSize:getAdjustSizeByWidth(18),
+        paddingHorizontal:"5%"
+    },
+    text5:{
+        color:'#000000',
+        fontSize:getAdjustSizeByWidth(18),
+        fontWeight:"bold"
+    },
+    text6:{
+        color:'#979797',
+        fontSize:getAdjustSizeByWidth(18)
+    },
+    text7:{
+        color:'#979797',
+        fontSize:getAdjustSizeByWidth(18),
+        fontWeight:"bold"
+    },
+    text8:{
+        color:'#c0c0c0',
+        fontSize:getAdjustSizeByWidth(18)
+    },
+    text9:{
+        color:'#ff7856',
+        fontSize:getAdjustSizeByWidth(18)
+    },
+    text10:{
+        color:'#ff7856',
+        fontSize:getAdjustSizeByWidth(18),
+        fontWeight:"bold"
+    },
 
     //--------------------------------
     modalContainer:{
@@ -382,8 +428,8 @@ const styles = StyleSheet.create({
     },
     modalBox:{
         width:"100%",
-        height:222,
-        borderRadius:12,
+        height:getAdjustSizeByWidth(222),
+        borderRadius:getAdjustSizeByWidth(12),
         backgroundColor:'#ffffff'
     },
     modalBox_1:{
@@ -401,7 +447,16 @@ const styles = StyleSheet.create({
     //--------------------------------
     modal_img:{
         resizeMode:"contain",
-        width:36,
-        height:36
+        width:getAdjustSizeByWidth(36),
+        height:getAdjustSizeByWidth(36)
+    },
+    modal_text1:{
+        color:"#000000",
+        fontSize:getAdjustSizeByWidth(20),
+        fontWeight:"bold"
+    },
+    modal_text2:{
+        color:"#a0a0a0",
+        fontSize:getAdjustSizeByWidth(18)
     },
 });

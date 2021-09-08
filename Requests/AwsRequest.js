@@ -136,7 +136,7 @@ export const lambda_SetDeviceState = async (boothName, changeState) => {
 
     let result = true;
     if (rJson.hasOwnProperty('Error')){
-        result = false;
+        if (changeState == "off") result = false; //입장시에만 체크, 종료시에는 일단 진행될 수 있도록..
         Alert.alert(
             "Request Fail",
             rJson.Error,

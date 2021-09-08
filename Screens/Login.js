@@ -3,9 +3,11 @@ import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity, ImageBackgr
 import { TextButton } from './../Compo/TextButton';
 import * as awsRequest from './../Requests/AwsRequest';
 import { storeJsonData, getJsonData } from './../Compo/storageSelf';
+import { getAdjustSizeByWidth } from './../Compo/commonFunc'
+
 
 export const Login = ({navigation}) => {
-        
+
     //-------------------변수----------------------
 
     //로그인 정보 입력 변수
@@ -22,7 +24,7 @@ export const Login = ({navigation}) => {
     const [lastBooth, setLastBooth] = useState("");
 
     //모달 컨트롤
-    const [modalVisible, setModalVisible] = useState(false);    
+    const [modalVisible, setModalVisible] = useState(false); 
     
     //-------------------함수----------------------
 
@@ -85,14 +87,14 @@ export const Login = ({navigation}) => {
             if (!setting.hasOwnProperty('watchFirstPage')) isNew = true;
         }
 
-        if(isNew) {
+        if(isNew || (lastId != idStr)) { //최초 혹은 사용자 변경시 첫페이지 노출
             let newSetting = {
                 watchFirstPage:false
             };
             await storeJsonData('Setting', newSetting);
             setting = await getJsonData('Setting');
         }        
-        
+
         if(setting.watchFirstPage) saveAndNextPage('Action02', null);
         else saveAndNextPage('Action01', null);
     }
@@ -143,6 +145,12 @@ export const Login = ({navigation}) => {
 
         //퇴실시, Log 저장
         await awsRequest.lambda_SaveLog(true);
+
+        //사용자 변경됌 >> 첫페이지 노출 초기화
+        let newSetting = {
+            watchFirstPage:false
+        }
+        await storeJsonData('Setting', newSetting);
 
         //사용중 부스 데이터 변경
         let curUserJson = {
@@ -206,15 +214,15 @@ export const Login = ({navigation}) => {
         touchable:{
             alignItems:'center',
             justifyContent:'center',
-            borderRadius:12,
+            borderRadius:getAdjustSizeByWidth(12),
             backgroundColor: "#00C4CC",
             width:"100%",
-            height: 64,
+            height: getAdjustSizeByWidth(64),
         },
         text:{
             color:"#FFFFFF",
             fontWeight:"bold",
-            fontSize:20,
+            fontSize:getAdjustSizeByWidth(20),
         }
     });    
     const textBtnInfo = {
@@ -231,12 +239,12 @@ export const Login = ({navigation}) => {
             backgroundColor: "#000000",
             width:"100%",
             height: "100%",
-            borderBottomRightRadius:12
+            borderBottomRightRadius:getAdjustSizeByWidth(11)
         },
         text:{
             color:"#FFFFFF",
             fontWeight:"bold",
-            fontSize:18,
+            fontSize:getAdjustSizeByWidth(18),
         }
     });    
     const modalExitInfo = {
@@ -253,12 +261,12 @@ export const Login = ({navigation}) => {
             backgroundColor: "#ff7856",
             width:"100%",
             height: "100%",
-            borderBottomLeftRadius:12
+            borderBottomLeftRadius:getAdjustSizeByWidth(11)
         },
         text:{
             color:"#FFFFFF",
             fontWeight:"bold",
-            fontSize:18,
+            fontSize:getAdjustSizeByWidth(18),
         }
     });    
     const modalNextInfo = {
@@ -277,20 +285,20 @@ export const Login = ({navigation}) => {
                         <View style={styles.modalBox_1}>
                             <Image style={styles.modal_img} source={require('./../assets/drawable-xxxhdpi/icon-alert-error_24px.png')}></Image>
                             <Text></Text>
-                            <Text style={[{color:"#000000",fontSize:20,fontWeight:"bold"}]}>사용중인 부스가 있습니다</Text>                           
+                            <Text style={styles.modal_text1}>사용중인 부스가 있습니다</Text>                           
                             <Text></Text>
                             <View style={[{flexDirection:'row'}]}>
-                                <Text style={[{color:"#606060",fontSize:18}]}>사용자&nbsp;</Text>
-                                <Text style={[{color:"#000000",fontSize:18,fontWeight:"bold"}]}>{lastName}</Text>
-                                <Text style={[{color:"#606060",fontSize:18}]}>&nbsp;이</Text>
+                                <Text style={styles.modal_text2}>사용자&nbsp;</Text>
+                                <Text style={styles.modal_text3}>{lastName}</Text>
+                                <Text style={styles.modal_text2}>&nbsp;이</Text>
                             </View>
-                            <Text numberOfLines={1} ellipsizeMode="middle" style={[{color:"#000000",fontSize:18,fontWeight:"bold",paddingHorizontal:"5%"}]}>{lastBooth}</Text>
-                            <Text style={[{color:"#606060",fontSize:18}]}>부스를 사용 중입니다</Text>
+                            <Text numberOfLines={1} ellipsizeMode="middle" style={styles.modal_text4}>{lastBooth}</Text>
+                            <Text style={styles.modal_text2}>부스를 사용 중입니다</Text>
                             <Text></Text>
-                            <Text style={[{color:"#606060",fontSize:18}]}>로그인을 계속 진행하시면</Text>
-                            <Text style={[{color:"#606060",fontSize:18}]}>해당 부스는 사용종료 처리됩니다</Text>
+                            <Text style={styles.modal_text2}>로그인을 계속 진행하시면</Text>
+                            <Text style={styles.modal_text2}>해당 부스는 사용종료 처리됩니다</Text>
                             <Text></Text>
-                            <Text style={[{color:"#606060",fontSize:18}]}>로그인 하시겠습니까?</Text>
+                            <Text style={styles.modal_text2}>로그인 하시겠습니까?</Text>
                         </View>
                         <View style={styles.modalBox_2}>
                             <View style={styles.modalBox_2_1}><TextButton info={modalNextInfo} /></View>
@@ -359,33 +367,32 @@ const styles = StyleSheet.create({
     },    
     inputStyle:{
         backgroundColor:"#FFFFFF66",
-        borderRadius:6,
-        height:49,
-        marginBottom:5,
-        paddingLeft:10
+        borderRadius:getAdjustSizeByWidth(6),
+        height:getAdjustSizeByWidth(49),
+        marginBottom:getAdjustSizeByWidth(5),
+        paddingLeft:getAdjustSizeByWidth(10)
     },
     checkBox:{
         resizeMode:"contain",
-        width: 24,
-        height: 24
+        width: getAdjustSizeByWidth(24),
+        height: getAdjustSizeByWidth(24)
     },
     worknAll:{
         resizeMode:"contain",
-        width: 82,
-        height: 16,
+        //width: 82,
+        height: getAdjustSizeByWidth(16),
         position:'absolute',
-        bottom:18
+        bottom:getAdjustSizeByWidth(18)
     },
     //--------------------------------
     text01:{
         color:"#FFFFFFC4",
-        fontSize:14,
-        marginBottom:3
+        fontSize:getAdjustSizeByWidth(14),
+        marginBottom:getAdjustSizeByWidth(3)
     },
     text02:{
         color:"#FFFFFF",
-        fontSize:12,
-        
+        fontSize:getAdjustSizeByWidth(12),        
     },    
     //--------------------------------
     modalContainer:{
@@ -398,7 +405,7 @@ const styles = StyleSheet.create({
     modalBox:{
         width:"100%",
         height:"65%",
-        borderRadius:12,
+        borderRadius:getAdjustSizeByWidth(12),
         backgroundColor:'#ffffff',
     },
     modalBox_1:{
@@ -416,8 +423,27 @@ const styles = StyleSheet.create({
     //--------------------------------
     modal_img:{
         resizeMode:"contain",
-        width:36,
-        height:36
+        width:getAdjustSizeByWidth(36),
+        height:getAdjustSizeByWidth(36)
     },
-    
+    modal_text1:{
+        color:"#000000",
+        fontSize:getAdjustSizeByWidth(20),
+        fontWeight:"bold"
+    },
+    modal_text2:{
+        color:"#606060",
+        fontSize:getAdjustSizeByWidth(18)
+    },
+    modal_text3:{
+        color:"#000000",
+        fontSize:getAdjustSizeByWidth(18),
+        fontWeight:"bold"
+    },   
+    modal_text4:{
+        color:"#000000",
+        fontSize:getAdjustSizeByWidth(18),
+        fontWeight:"bold",
+        paddingHorizontal:"5%"
+    }, 
 });

@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
 import { TextButton } from './../Compo/TextButton'
+import { getAdjustSizeByWidth } from './../Compo/commonFunc'
 
 export const Action02 = ({navigation}) => {
 
@@ -22,15 +23,15 @@ export const Action02 = ({navigation}) => {
         touchable:{
             alignItems:'center',
             justifyContent:'center',
-            borderRadius:12,
+            borderRadius:getAdjustSizeByWidth(12),
             backgroundColor: "#000000",
             width:"100%",
-            height: 64,
+            height: getAdjustSizeByWidth(64),
         },
         text:{
             color:"#FFFFFF",
             fontWeight:"bold",
-            fontSize:20,
+            fontSize:getAdjustSizeByWidth(20),
         }
     });    
     const textBtnInfo = {
@@ -38,6 +39,7 @@ export const Action02 = ({navigation}) => {
         cssStyle: btnCustom,
         title:"스캔하기"
     }
+   
 
     //-------------------Render----------------------
     return(
@@ -66,6 +68,7 @@ export const Action02 = ({navigation}) => {
             </View>
         </View>
     );
+
 }
 
 const styles = StyleSheet.create({
@@ -101,27 +104,28 @@ const styles = StyleSheet.create({
     //--------------------------------
     img01:{
         resizeMode:"contain",
-        width:41,
-        height:35
+        width:getAdjustSizeByWidth(41),
+        height:getAdjustSizeByWidth(35)
     },
     img02:{
         resizeMode:"contain",
-        width:134,
-        height:132
+        width:getAdjustSizeByWidth(134),
+        height:getAdjustSizeByWidth(132)
     },
     //--------------------------------
     text01:{
         color:"#00c4cc", 
-        fontSize:45,
+        fontSize:getAdjustSizeByWidth(45),
     },
     text02:{
         color:"#979797",
-        fontSize:24,
+        fontSize:getAdjustSizeByWidth(24),
     },
     text03:{
         color:"#000000", 
-        fontSize:24,
+        fontSize:getAdjustSizeByWidth(24),
         fontWeight:"bold"
     }, 
     
 });
+

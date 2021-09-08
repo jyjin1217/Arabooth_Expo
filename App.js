@@ -13,6 +13,8 @@ import { Action04 } from './Screens/Action04'
 import { Action05 } from './Screens/Action05'
 import * as storage from './Compo/storageSelf'
 import { lambda_checkVersion } from './Requests/AwsRequest'
+import * as Device from 'expo-device'
+import * as WebBrowser from 'expo-web-browser'
 
 export default App = () => {
 
@@ -63,6 +65,17 @@ export default App = () => {
     return true; //-> 기본 뒤로가기 동작을 막음(현 상태에서는 stack-navigation pop을 막음)
   }
 
+  const AsyncAlert = async () => new Promise((resolve) => {
+    Alert.alert(
+      "App Update",
+      "새로운 버전이 존재합니다.\n앱을 업데이트 후 사용을 부탁드립니다.",
+      [
+        { text: "OK" , onPress: () => resolve('YES') } 
+      ],
+      { cancelable: false }
+    );
+  })
+
 
   useEffect(() => {
     //Splash screen 지속시간 설정
@@ -92,7 +105,7 @@ export default App = () => {
   useEffect(() => {
     let version = Constants.manifest.version;
 
-    //내부 저장 변경
+    //내부 저장 변경, 추후 삭제
     let verStr = version.split('.');
     if(verStr[0] == "1" && verStr[1] == "0" && Number(verStr[2]) <= 7){      
 
@@ -146,18 +159,16 @@ export default App = () => {
 
       let isLastVersion = await lambda_checkVersion(version);
       if (isLastVersion == false) {
-        Alert.alert(
-          "App Update",
-          "새로운 버전이 존재합니다. 앱을 업데이트 후 사용을 부탁드립니다.",
-          [
-            { text: "OK" , onPress: () => BackHandler.exitApp() } 
-          ],
-          { cancelable: false }
-        );
+
+        await AsyncAlert();
+
+        BackHandler.exitApp();
+        if (Device.brand == "Apple") {}
+        else await WebBrowser.openBrowserAsync("https://play.google.com/store/apps/details?id=com.mocha.Arabooth");
+
       }
 
     })();
-
 
   }, []);
 

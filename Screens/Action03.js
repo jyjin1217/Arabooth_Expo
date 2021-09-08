@@ -3,6 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { TextButton } from './../Compo/TextButton';
 import { getJsonData } from './../Compo/storageSelf';
 import * as awsRequest from './../Requests/AwsRequest';
+import { getAdjustSizeByWidth } from './../Compo/commonFunc';
 
 export const Action03 = ({navigation, route}) => {
 
@@ -42,15 +43,15 @@ export const Action03 = ({navigation, route}) => {
         touchable:{
             alignItems:'center',
             justifyContent:'center',
-            borderRadius:12,
+            borderRadius:getAdjustSizeByWidth(12),
             backgroundColor: "#00C4CC",
             width:"100%",
-            height: 64,
+            height: getAdjustSizeByWidth(64),
         },
         text:{
             color:"#FFFFFF",
             fontWeight:"bold",
-            fontSize:20,
+            fontSize:getAdjustSizeByWidth(20),
         }
     });    
     const textBtnInfo = {
@@ -67,8 +68,8 @@ export const Action03 = ({navigation, route}) => {
                     <Text style={styles.text01}>Hello</Text>
                 </View>
                 <View style={styles.top02}>
-                    <Text style={styles.text05}>{userCompany}</Text>
-                    <Text style={styles.text05}>{userName}</Text>                    
+                    <Text numberOfLines={1} ellipsizeMode="middle" style={styles.text05}>{userCompany}</Text>
+                    <Text numberOfLines={1} ellipsizeMode="middle" style={styles.text05}>{userName}</Text>                    
                     <Text style={styles.text04}>고객님 인증되었습니다</Text>
                 </View>
                 <View style={styles.top03}>  
@@ -116,24 +117,24 @@ const styles = StyleSheet.create({
     //--------------------------------
     text01:{
         color:"#00c4cc", 
-        fontSize:45,
+        fontSize:getAdjustSizeByWidth(45),
     },
     text02:{
         color:"#a2a2a2",
-        fontSize:24,
+        fontSize:getAdjustSizeByWidth(24),
     },
     text03:{
         color:"#000000", 
-        fontSize:24,
+        fontSize:getAdjustSizeByWidth(24),
         fontWeight:"bold"
     }, 
     text04:{
         color:"#000000",
-        fontSize:28,
+        fontSize:getAdjustSizeByWidth(28),
     },
     text05:{
         color:"#000000", 
-        fontSize:28,
+        fontSize:getAdjustSizeByWidth(28),
         fontWeight:"bold"
     },
 

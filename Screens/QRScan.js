@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import {BarCodeScanner} from 'expo-barcode-scanner'
 import { TextButton } from './../Compo/TextButton'
+import { getAdjustSizeByWidth } from './../Compo/commonFunc'
 
 export const QRScan = ({navigation}) => {
 
@@ -68,15 +69,15 @@ export const QRScan = ({navigation}) => {
         touchable:{
             alignItems:'center',
             justifyContent:'center',
-            borderRadius:12,
+            borderRadius:getAdjustSizeByWidth(12),
             backgroundColor: "#ff7856",
             width:"100%",
-            height: 64,
+            height: getAdjustSizeByWidth(64),
         },
         text:{
             color:"#FFFFFF",
             fontWeight:"bold",
-            fontSize:20,
+            fontSize:getAdjustSizeByWidth(20),
         }
     });    
     const textBtnInfo = {
@@ -90,16 +91,16 @@ export const QRScan = ({navigation}) => {
         touchable:{
             alignItems:'center',
             justifyContent:'center',
-            borderRadius:12,
+            borderRadius:getAdjustSizeByWidth(12),
             backgroundColor: "#000000",
             width:"100%",
-            height: 30,
+            height: getAdjustSizeByWidth(30),
         },
         text:{
             color:"#FFFFFF",
             fontWeight:"bold",
-            fontSize:20,
-            height:27
+            fontSize:getAdjustSizeByWidth(20),
+            height:getAdjustSizeByWidth(27)
         }
     });    
     
@@ -112,12 +113,12 @@ export const QRScan = ({navigation}) => {
                     style={StyleSheet.absoluteFillObject}>
                 </BarCodeScanner>
             </View>
-            <View style={styles.bottomContainer}>
+            {/* <View style={styles.bottomContainer}>
                 <TextButton info={textBtnInfo} />
                 <TouchableOpacity style={avdTemp.touchable} onPress={()=>goToAction03("테스트")}>
                     <Text style={avdTemp.text}>테스트용:다음페이지</Text>
                 </TouchableOpacity>
-            </View>
+            </View> */}
         </View>
     );
 }
