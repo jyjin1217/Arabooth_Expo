@@ -18,7 +18,7 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.mocha.Arabooth",
+      "bundleIdentifier": "com.worknall.arabooth",
       "config":{
         "usesNonExemptEncryption":false
       }

@@ -108,6 +108,12 @@ export const Action04 = ({navigation, route}) => {
                 apm:(Number(dateArr[3]) >= 12) ? "PM" : "AM"
             });
 
+            if (isNew) {
+                setTimeout(async ()=>{
+                    await awsRequest.lambda_SetDeviceState(qrData,"on");
+                }, 3000);
+            }
+
         })();
 
     }, []);

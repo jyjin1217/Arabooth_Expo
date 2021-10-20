@@ -44,9 +44,11 @@ export default App = () => {
       case "Action02":
         naviRef.current.navigate("Login");
       break;
-      case "QRScan":   
-      case "Action03":
+      case "QRScan": 
         naviRef.current.goBack();
+      break;
+      case "Action03":
+        naviRef.current.navigate("Action02");
       break;        
       case "Action04":
         Alert.alert(
