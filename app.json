@@ -2,7 +2,7 @@
   "expo": {
     "name": "AraBooth",
     "slug": "AraBooth",
-    "version": "1.0.7",
+    "version": "1.0.9",
     "orientation": "portrait",
     "icon": "./assets/araIcon.png",
     "splash": {
@@ -21,6 +21,9 @@
       "bundleIdentifier": "com.worknall.arabooth",
       "config":{
         "usesNonExemptEncryption":false
+      },
+      "infoPlist":{
+        "NSCameraUsageDescription":"This app uses the camera to scan QR code on arabooth"
       }
     },
     "android": {

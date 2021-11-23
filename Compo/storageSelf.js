@@ -43,6 +43,7 @@ export const deleteData = async (key) => {
 Setting = {
     watchFirstPage: bool,
     autoLogin : bool,
+    isCameraGranted : bool
 }
 
 TempData = {

@@ -171,7 +171,17 @@ export const lambda_checkVersion = async (curVersion) => {
     }
 
     if (result) {
-        if (rJson['Version'] != curVersion) result = false;
+        let requestVer = rJson['Version'].split('.');
+        let curVer = curVersion.split('.');
+
+        if (Number(curVer[2]) < Number(requestVer[2])) result = false;
+        else result = true;
+
+        if (Number(curVer[1]) < Number(requestVer[1])) result = false;
+        else result = true;
+
+        if (Number(curVer[0]) < Number(requestVer[0])) result = false;
+        else result = true;
     }
     
     return result;

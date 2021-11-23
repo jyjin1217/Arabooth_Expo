@@ -6,7 +6,7 @@ import { getAdjustSizeByWidth } from './../Compo/commonFunc'
 export const Action02 = ({navigation}) => {
 
     //-------------------변수----------------------
-
+    
     //-------------------함수----------------------
 
     //다음 페이지
@@ -15,6 +15,7 @@ export const Action02 = ({navigation}) => {
     }
 
     //-------------------UseEffect----------------------
+   
 
     //-------------------커스텀 버튼----------------------
 
@@ -43,7 +44,7 @@ export const Action02 = ({navigation}) => {
 
     //-------------------Render----------------------
     return(
-        <View style={styles.container}>
+        <View style={styles.container}>            
             <View style={styles.topContainer}>
                 <View style={styles.top01}>
                     <Text style={styles.text01}>QRScan</Text>
@@ -126,6 +127,7 @@ const styles = StyleSheet.create({
         fontSize:getAdjustSizeByWidth(24),
         fontWeight:"bold"
     }, 
+    //--------------------------------
     
 });
 

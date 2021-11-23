@@ -72,7 +72,14 @@ export default App = () => {
       "App Update",
       "새로운 버전이 존재합니다.\n앱을 업데이트 후 사용을 부탁드립니다.",
       [
-        { text: "OK" , onPress: () => resolve('YES') } 
+        { text: "다음에" , onPress: () => resolve('YES') },
+        { text: "업데이트" , onPress: () => { 
+            resolve('YES');
+            BackHandler.exitApp();
+            if (Device.brand == "Apple") {}
+            else WebBrowser.openBrowserAsync("https://play.google.com/store/apps/details?id=com.mocha.Arabooth");
+          }
+        }
       ],
       { cancelable: false }
     );
@@ -109,7 +116,7 @@ export default App = () => {
 
     //내부 저장 변경, 추후 삭제
     let verStr = version.split('.');
-    if(verStr[0] == "1" && verStr[1] == "0" && Number(verStr[2]) <= 7){      
+    if(verStr[0] == "1" && verStr[1] == "0" && Number(verStr[2]) <= 8){      
 
       (async () => {
         
@@ -161,13 +168,7 @@ export default App = () => {
 
       let isLastVersion = await lambda_checkVersion(version);
       if (isLastVersion == false) {
-
         await AsyncAlert();
-
-        BackHandler.exitApp();
-        if (Device.brand == "Apple") {}
-        else await WebBrowser.openBrowserAsync("https://play.google.com/store/apps/details?id=com.mocha.Arabooth");
-
       }
 
     })();
